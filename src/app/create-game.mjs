@@ -139,8 +139,6 @@ const renderer = createRenderer({
   world,
   assets,
   spriteFrames,
-  currentLevel,
-  waveStatusText,
   clamp,
   getBackgroundRenderer: () => backgroundRenderer,
   getEffectsRenderer: () => effectsRenderer,
