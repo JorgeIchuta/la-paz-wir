@@ -180,6 +180,7 @@ let enemyConfigs = null;
 let coreMath = null;
 let particlePool = null;
 let projectilePool = null;
+let projectileSystem = null;
 let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
@@ -293,6 +294,24 @@ Promise.all([
   })
   .catch((error) => {
     console.warn("Using fallback asset loading.", error);
+  });
+
+import("./src/gameplay/projectiles.mjs")
+  .then(({ createProjectileSystem }) => {
+    projectileSystem = createProjectileSystem({
+      state,
+      player,
+      world,
+      canvas,
+      projectilePool: () => projectilePool,
+      circleRect,
+      playerBox,
+      hitPlayer,
+      burst,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback projectile system.", error);
   });
 
 function currentLevel() {
@@ -848,6 +867,7 @@ function updateMiner(enemy, dx) {
 }
 
 function throwProjectile(enemy, type) {
+  if (projectileSystem) return projectileSystem.throwProjectile(enemy, type);
   const dir = Math.sign(player.x - enemy.x) || 1;
   const speed = type === "dynamite" || type === "gas" ? 190 : 260;
   const projectile = {
@@ -868,6 +888,7 @@ function throwProjectile(enemy, type) {
 }
 
 function updateProjectiles(dt) {
+  if (projectileSystem) return projectileSystem.updateProjectiles(dt);
   state.projectiles.forEach((projectile) => {
     projectile.x += projectile.vx * dt;
     projectile.y += projectile.vy * dt;
@@ -898,6 +919,7 @@ function updateProjectiles(dt) {
 }
 
 function releaseGas(projectile) {
+  if (projectileSystem) return projectileSystem.releaseGas(projectile);
   burst(projectile.x, projectile.y - 12, "#8fb46a");
   state.gasClouds.push({
     x: projectile.x,
@@ -909,6 +931,7 @@ function releaseGas(projectile) {
 }
 
 function updateGasClouds(dt) {
+  if (projectileSystem) return projectileSystem.updateGasClouds(dt);
   state.gasClouds.forEach((cloud) => {
     cloud.life -= dt;
     cloud.r = Math.min(118, cloud.r + dt * 10);
@@ -922,6 +945,7 @@ function updateGasClouds(dt) {
 }
 
 function explode(projectile) {
+  if (projectileSystem) return projectileSystem.explode(projectile);
   const radius = 72;
   burst(projectile.x, projectile.y, "#f18b32");
   burst(projectile.x, projectile.y - 8, "#f1d25b");
