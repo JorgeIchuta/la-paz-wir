@@ -1,2 +1,1 @@
-import "../dev-server.js";
-
+import "./server/dev-server.mjs";

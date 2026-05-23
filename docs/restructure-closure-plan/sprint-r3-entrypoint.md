@@ -4,7 +4,7 @@ Fecha: 2026-05-23
 
 ## Objetivo
 
-Permitir que el proyecto arranque desde `src/main.mjs` sin cambiar todavia toda la arquitectura interna.
+Permitir que el proyecto arranque desde `src/main.mjs` sin depender de `game.js` ni de `dev-server.js`.
 
 ## Estado Actual
 
@@ -14,25 +14,43 @@ Permitir que el proyecto arranque desde `src/main.mjs` sin cambiar todavia toda 
 <script type="module" src="src/main.mjs"></script>
 ```
 
-`src/main.mjs` importa el entrypoint legacy:
+`src/main.mjs` decide el runtime:
 
 ```js
-import "../game.js";
+const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
+
+if (isBrowser) {
+  await import("./game-app.mjs");
+} else {
+  await import("./server/dev-server.mjs");
+}
 ```
 
-Esto permite que el navegador arranque desde `src/` mientras `game.js` sigue funcionando como puente durante la migracion.
+Esto permite:
 
-## Por Que Es Un Puente
+- navegador: `index.html` carga `src/main.mjs`, y este carga `src/game-app.mjs`
+- Node: `node src/main.mjs` levanta `src/server/dev-server.mjs`
+- legacy: `dev-server.js` queda como wrapper hacia `src/server/dev-server.mjs`
 
-`game.js` todavia contiene render, draw order y parte de la logica legacy. No debe eliminarse hasta que R2 complete:
+## Dependencias Permitidas
 
-- `world.mjs`
-- `sprites.mjs`
-- `renderer.mjs`
+La direccion correcta ahora es:
+
+```text
+index.html -> src/main.mjs -> src/game-app.mjs
+node src/main.mjs -> src/server/dev-server.mjs
+dev-server.js -> src/server/dev-server.mjs
+```
+
+Los archivos reestructurados no deben importar `../game.js` ni `../dev-server.js`.
+
+`game.js` puede seguir existiendo temporalmente como archivo legacy, pero no es el entrypoint oficial del juego migrado.
 
 ## Validacion
 
 - `node --check ./src/main.mjs`
-- `node --check ./game.js`
+- `node --check ./src/game-app.mjs`
+- `node --check ./src/server/dev-server.mjs`
+- `node --check ./dev-server.js`
 - servidor local responde `200`
 - navegador carga `src/main.mjs` como JavaScript

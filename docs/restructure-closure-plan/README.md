@@ -4,43 +4,44 @@ Fecha: 2026-05-23
 
 ## Proposito
 
-Este plan define lo que falta para que `La Paz Wir` deje de depender de `game.js` como monolito y pueda correr desde una estructura modular real en `src/`.
+Este plan registra el cierre de la migracion para que `La Paz Wir` pueda correr desde una estructura modular real en `src/`.
 
 ## Estado Actual
 
-El juego todavia inicia desde:
+El navegador carga:
 
 ```html
-<script src="game.js"></script>
+<script type="module" src="src/main.mjs"></script>
 ```
 
-Pero `game.js` ya consume modulos nuevos:
+El comando oficial local es:
 
-- `src/data/levels.mjs`
-- `src/data/enemies.mjs`
-- `src/data/assets.mjs`
-- `src/core/asset-loader.mjs`
-- `src/core/input.mjs`
-- `src/core/math.mjs`
-- `src/core/object-pool.mjs`
-- `src/ui/game-ui.mjs`
-- `src/main.mjs` como entrypoint del navegador
+```bash
+node src/main.mjs
+```
 
-Esto significa que el navegador ya arranca desde `src/main.mjs`, aunque `game.js` sigue siendo el puente legacy mientras se termina de extraer render y orquestacion.
+La direccion de dependencias queda asi:
 
-## Sprints Propuestos
+```text
+index.html -> src/main.mjs -> src/game-app.mjs
+node src/main.mjs -> src/server/dev-server.mjs
+dev-server.js -> src/server/dev-server.mjs
+```
 
-- Sprint R1: extraer gameplay seguro.
-- Sprint R2: extraer render seguro.
-- Sprint R3: crear `src/main.mjs` y cambiar entrypoint.
-- Sprint R4: limpieza del legacy `game.js` y QA.
-- Sprint R5: decision TypeScript/Phaser.
+Los archivos reestructurados dentro de `src/` no dependen de `game.js` ni de `dev-server.js`.
+
+## Sprints Ejecutados
+
+- Sprint R1: extraccion segura de gameplay.
+- Sprint R2: extraccion segura de render.
+- Sprint R3: entrypoint modular con `src/main.mjs`, `src/game-app.mjs` y servidor ESM en `src/server/dev-server.mjs`.
 
 ## Regla Principal
 
-Cada sprint debe cerrar con:
+Cada cambio debe cerrar con:
 
-- `node --check ./game.js`
+- `node --check ./src/main.mjs`
+- `node --check ./src/game-app.mjs`
 - `node --check` de modulos `.mjs` tocados
 - servidor local respondiendo
 - smoke test manual

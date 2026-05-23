@@ -1,7 +1,7 @@
 const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
 
 if (isBrowser) {
-  await import("../game.js");
+  await import("./game-app.mjs");
 } else {
-  await import("./dev-server.mjs");
+  await import("./server/dev-server.mjs");
 }

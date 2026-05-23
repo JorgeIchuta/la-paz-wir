@@ -21,7 +21,7 @@ El proyecto no usa paquetes externos por ahora, asi que no hace falta ejecutar `
 Desde esta carpeta:
 
 ```bash
-node dev-server.js
+node src/main.mjs
 ```
 
 Luego abrir en el navegador:
@@ -35,13 +35,13 @@ http://127.0.0.1:5173/
 En PowerShell:
 
 ```powershell
-$env:PORT=5174; node dev-server.js
+$env:PORT=5174; node src/main.mjs
 ```
 
 En bash:
 
 ```bash
-PORT=5174 node dev-server.js
+PORT=5174 node src/main.mjs
 ```
 
 ## Estructura
@@ -49,8 +49,9 @@ PORT=5174 node dev-server.js
 ```text
 index.html          Pantalla principal del juego
 styles.css          Estilos y layout
-game.js             Logica del juego
-dev-server.js       Servidor local
+src/main.mjs        Entrypoint de navegador y servidor local
+src/game-app.mjs    Orquestacion actual del juego
+src/server/         Servidor local ESM
 assets/             Fondos, sprites y recursos visuales
 docs/               Documentacion de produccion
 ```
@@ -59,3 +60,4 @@ docs/               Documentacion de produccion
 
 - Si no ves cambios recientes en el navegador, recarga con `Ctrl+F5`.
 - Los logs locales `server.out.log` y `server.err.log` estan ignorados por git.
+- `dev-server.js` queda solo como wrapper legacy hacia `src/server/dev-server.mjs`.
