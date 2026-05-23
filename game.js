@@ -186,6 +186,8 @@ let waveSystem = null;
 let objectSystem = null;
 let enemiesRuntime = null;
 let effectsRenderer = null;
+let hudRenderer = null;
+let backgroundRenderer = null;
 let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
@@ -402,6 +404,36 @@ import("./src/render/effects.mjs")
   })
   .catch((error) => {
     console.warn("Using fallback effects renderer.", error);
+  });
+
+import("./src/render/hud-render.mjs")
+  .then(({ createHudRenderer }) => {
+    hudRenderer = createHudRenderer({
+      ctx,
+      canvas,
+      state,
+      player,
+      clamp,
+      waveStatusText,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback HUD renderer.", error);
+  });
+
+import("./src/render/backgrounds.mjs")
+  .then(({ createBackgroundRenderer }) => {
+    backgroundRenderer = createBackgroundRenderer({
+      ctx,
+      canvas,
+      state,
+      world,
+      currentLevel,
+      px,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback background renderer.", error);
   });
 
 function currentLevel() {
@@ -1207,6 +1239,7 @@ function strokePx(x, y, w, h, color) {
 }
 
 function drawBackground() {
+  if (backgroundRenderer) return backgroundRenderer.drawBackground();
   const bg = currentLevel().background;
   if (bg.complete && bg.naturalWidth > 0) {
     const sourceHeight = bg.naturalHeight;
@@ -1979,6 +2012,7 @@ function drawForeground() {
 }
 
 function drawCooldown() {
+  if (hudRenderer) return hudRenderer.drawCooldown();
   const pct = 1 - player.attackCooldown / 0.52;
   ctx.fillStyle = "rgba(0, 0, 0, 0.44)";
   ctx.fillRect(246, 58, 112, 10);
@@ -1987,6 +2021,7 @@ function drawCooldown() {
 }
 
 function drawStatus() {
+  if (hudRenderer) return hudRenderer.drawStatus();
   const minutes = Math.floor(state.elapsed / 60);
   const seconds = String(Math.floor(state.elapsed % 60)).padStart(2, "0");
   let text = `${minutes}:${seconds}`;
@@ -2002,6 +2037,7 @@ function drawStatus() {
 }
 
 function drawMessage() {
+  if (hudRenderer) return hudRenderer.drawMessage();
   if (state.messageTimer <= 0 || !state.messageText) return;
   ctx.save();
   const alpha = Math.min(1, state.messageTimer / 0.35);
@@ -2018,6 +2054,7 @@ function drawMessage() {
 }
 
 function wrapText(text, x, y, maxWidth, lineHeight) {
+  if (hudRenderer) return hudRenderer.wrapText(text, x, y, maxWidth, lineHeight);
   const words = text.split(" ");
   let line = "";
   words.forEach((word) => {

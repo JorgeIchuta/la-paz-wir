@@ -112,8 +112,12 @@ Riesgo:
 - [x] Conectar `effects.mjs` con wrapper y fallback seguro en `game.js`.
 - [x] Validar `node --check ./game.js`.
 - [x] Validar `node --check ./src/render/effects.mjs`.
-- [ ] Extraer `hud-render.mjs`.
-- [ ] Extraer `backgrounds.mjs`.
+- [x] Crear `src/render/hud-render.mjs`.
+- [x] Conectar `hud-render.mjs` con wrapper y fallback seguro en `game.js`.
+- [x] Validar `node --check ./src/render/hud-render.mjs`.
+- [x] Crear `src/render/backgrounds.mjs`.
+- [x] Conectar `backgrounds.mjs` con wrapper y fallback seguro en `game.js`.
+- [x] Validar `node --check ./src/render/backgrounds.mjs`.
 - [ ] Extraer `world.mjs`.
 - [ ] Extraer `sprites.mjs`.
 - [ ] Extraer `renderer.mjs`.

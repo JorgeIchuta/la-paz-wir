@@ -6,8 +6,7 @@ Regla: render recibe estado ya calculado. No debe decidir dano, puntaje, IA ni p
 
 Modulos actuales:
 
-- `effects.mjs`: hit arcs y particulas.
-
-Modulos actuales:
-
+- `backgrounds.mjs`: fondo de nivel, cielo procedural y parallax basico.
 - `effects.mjs`: dibujo de arcos de golpe y particulas.
+- `hud-render.mjs`: HUD canvas, cooldown, estado y mensajes.
+

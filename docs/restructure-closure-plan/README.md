@@ -24,8 +24,9 @@ Pero `game.js` ya consume modulos nuevos:
 - `src/core/math.mjs`
 - `src/core/object-pool.mjs`
 - `src/ui/game-ui.mjs`
+- `src/main.mjs` como entrypoint del navegador
 
-Esto significa que la reestructuracion esta en fase parcial funcional, no completa.
+Esto significa que el navegador ya arranca desde `src/main.mjs`, aunque `game.js` sigue siendo el puente legacy mientras se termina de extraer render y orquestacion.
 
 ## Sprints Propuestos
 
@@ -44,4 +45,3 @@ Cada sprint debe cerrar con:
 - servidor local respondiendo
 - smoke test manual
 - fallback o rollback claro
-
