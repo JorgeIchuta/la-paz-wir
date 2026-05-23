@@ -37,5 +37,14 @@ export class ObjectPool {
       this.available.push(this.active.pop());
     }
   }
-}
 
+  reset() {
+    this.active.length = 0;
+    this.available.length = 0;
+  }
+
+  syncFrom(activeItems) {
+    this.reset();
+    this.active = activeItems;
+  }
+}

@@ -117,7 +117,11 @@ Al terminar este bloque inicial debe existir:
 - [x] Conectar `src/data/enemies.mjs` con fallback seguro en `game.js`.
 - [x] Conectar `src/core/math.mjs` con fallback seguro en `game.js`.
 - [x] Crear helper base `src/core/object-pool.mjs`.
-- [ ] Conectar object pools a proyectiles/particulas.
+- [x] Conectar object pool a particulas con fallback seguro en `game.js`.
+- [x] Conectar `src/ui/game-ui.mjs` con fallback seguro en `game.js`.
+- [x] Extraer input a `src/core/input.mjs` y conectarlo con fallback seguro.
+- [x] Crear `src/core/asset-loader.mjs` y conectarlo con fallback seguro.
+- [x] Conectar object pool a proyectiles con fallback seguro.
 
 ## Nota Tecnica
 

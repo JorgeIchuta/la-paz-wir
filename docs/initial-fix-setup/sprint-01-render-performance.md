@@ -196,3 +196,10 @@ No implementar todavia:
 - Hay decision clara de cuando usar Phaser/Pixi/Three.
 - El prototipo sigue pasando smoke test.
 
+## Estado De Implementacion
+
+- [x] Helper base `src/core/object-pool.mjs`.
+- [x] Pool conectado a particulas con fallback seguro.
+- [x] Pool conectado a proyectiles con fallback seguro.
+- [ ] Limite duro de particulas visibles.
+- [ ] Presupuesto visual ajustable desde data.

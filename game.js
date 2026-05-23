@@ -6,6 +6,7 @@ const energyEl = document.querySelector("#energy");
 const shopsEl = document.querySelector("#shops");
 const overlay = document.querySelector("#overlay");
 const startButton = document.querySelector("#startButton");
+let gameUi = null;
 
 const input = {
   left: false,
@@ -20,7 +21,7 @@ const world = {
   cameraX: 0,
 };
 
-const assets = {
+let assets = {
   streetBackground: loadImage("assets/backgrounds/la-paz-playable-map-long.png"),
   telefericoBackground: loadImage("assets/backgrounds/la-paz-teleferico-map-extended-aligned.png"),
   pacenaKiosk: loadImage("assets/sprites/kiosco-paceno-game.png"),
@@ -93,9 +94,19 @@ function loadImage(src) {
   return image;
 }
 
-assets.characterSheet.addEventListener("load", () => {
-  assets.characterCanvas = makeChromaTransparent(assets.characterSheet);
-});
+function attachCharacterSheet(image) {
+  if (!image) return;
+  const applyCharacterSheet = () => {
+    assets.characterCanvas = makeChromaTransparent(image);
+  };
+  if (image.complete && image.naturalWidth > 0) {
+    applyCharacterSheet();
+    return;
+  }
+  image.addEventListener("load", applyCharacterSheet, { once: true });
+}
+
+attachCharacterSheet(assets.characterSheet);
 
 const spriteFrames = {
   hero: { x: 35, y: 170, w: 330, h: 520 },
@@ -167,6 +178,9 @@ let levels = [
 
 let enemyConfigs = null;
 let coreMath = null;
+let particlePool = null;
+let projectilePool = null;
+let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
   if (background === "street") return assets.streetBackground;
@@ -184,6 +198,7 @@ function hydrateLevelDefinition(level) {
 
 function applyLevelDefinitions(levelDefinitions) {
   if (!Array.isArray(levelDefinitions) || levelDefinitions.length === 0) return;
+  rawLevelDefinitions = levelDefinitions;
   levels = levelDefinitions.map(hydrateLevelDefinition);
   state.levelIndex = clamp(state.levelIndex, 0, levels.length - 1);
 }
@@ -221,6 +236,65 @@ import("./src/core/math.mjs")
     console.warn("Using fallback math helpers.", error);
   });
 
+import("./src/core/object-pool.mjs")
+  .then(({ ObjectPool }) => {
+    particlePool = new ObjectPool(
+      () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 0, color: "#ffffff" }),
+      (particle, config) => {
+        particle.x = config.x;
+        particle.y = config.y;
+        particle.vx = config.vx;
+        particle.vy = config.vy;
+        particle.life = config.life;
+        particle.color = config.color;
+      },
+      120
+    );
+    particlePool.syncFrom(state.particles);
+
+    projectilePool = new ObjectPool(
+      () => ({ type: "", x: 0, y: 0, vx: 0, vy: 0, r: 0, damage: 0, life: 0 }),
+      (projectile, config) => {
+        projectile.type = config.type;
+        projectile.x = config.x;
+        projectile.y = config.y;
+        projectile.vx = config.vx;
+        projectile.vy = config.vy;
+        projectile.r = config.r;
+        projectile.damage = config.damage;
+        projectile.life = config.life;
+      },
+      32
+    );
+    projectilePool.syncFrom(state.projectiles);
+  })
+  .catch((error) => {
+    console.warn("Using fallback pooled allocation.", error);
+  });
+
+import("./src/ui/game-ui.mjs")
+  .then(({ createGameUi }) => {
+    gameUi = createGameUi({ scoreEl, energyEl, shopsEl, overlay, startButton });
+  })
+  .catch((error) => {
+    console.warn("Using fallback UI helpers.", error);
+  });
+
+Promise.all([
+  import("./src/data/assets.mjs"),
+  import("./src/core/asset-loader.mjs"),
+])
+  .then(([{ assetManifest }, { createAssetsFromManifest }]) => {
+    assets = createAssetsFromManifest(assetManifest);
+    attachCharacterSheet(assets.characterSheet);
+    if (rawLevelDefinitions) {
+      applyLevelDefinitions(rawLevelDefinitions);
+    }
+  })
+  .catch((error) => {
+    console.warn("Using fallback asset loading.", error);
+  });
+
 function currentLevel() {
   return levels[state.levelIndex];
 }
@@ -256,7 +330,7 @@ function waveEnemies(index) {
   return ["mallku", "mallku", "mallku", "mallku", "mallku", "mallku", "blocker", "looter", "mallku", "mallku"];
 }
 
-function bindHold(buttonId, key) {
+function bindFallbackHold(buttonId, key) {
   const button = document.querySelector(buttonId);
   const on = (event) => {
     event.preventDefault();
@@ -272,26 +346,37 @@ function bindHold(buttonId, key) {
   button.addEventListener("pointerleave", off);
 }
 
-bindHold("#leftButton", "left");
-bindHold("#rightButton", "right");
-bindHold("#jumpButton", "jump");
-bindHold("#attackButton", "attack");
+function bindFallbackInput() {
+  bindFallbackHold("#leftButton", "left");
+  bindFallbackHold("#rightButton", "right");
+  bindFallbackHold("#jumpButton", "jump");
+  bindFallbackHold("#attackButton", "attack");
 
-window.addEventListener("keydown", (event) => {
-  const key = event.key.toLowerCase();
-  if (key === "arrowleft" || key === "a") input.left = true;
-  if (key === "arrowright" || key === "d") input.right = true;
-  if (key === "arrowup" || key === "w" || key === " ") input.jump = true;
-  if (key === "j" || key === "k") input.attack = true;
-});
+  window.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+    if (key === "arrowleft" || key === "a") input.left = true;
+    if (key === "arrowright" || key === "d") input.right = true;
+    if (key === "arrowup" || key === "w" || key === " ") input.jump = true;
+    if (key === "j" || key === "k") input.attack = true;
+  });
 
-window.addEventListener("keyup", (event) => {
-  const key = event.key.toLowerCase();
-  if (key === "arrowleft" || key === "a") input.left = false;
-  if (key === "arrowright" || key === "d") input.right = false;
-  if (key === "arrowup" || key === "w" || key === " ") input.jump = false;
-  if (key === "j" || key === "k") input.attack = false;
-});
+  window.addEventListener("keyup", (event) => {
+    const key = event.key.toLowerCase();
+    if (key === "arrowleft" || key === "a") input.left = false;
+    if (key === "arrowright" || key === "d") input.right = false;
+    if (key === "arrowup" || key === "w" || key === " ") input.jump = false;
+    if (key === "j" || key === "k") input.attack = false;
+  });
+}
+
+import("./src/core/input.mjs")
+  .then(({ bindGameInput }) => {
+    bindGameInput({ input });
+  })
+  .catch((error) => {
+    console.warn("Using fallback input bindings.", error);
+    bindFallbackInput();
+  });
 
 startButton.addEventListener("click", resetGame);
 
@@ -318,11 +403,13 @@ function resetGame() {
   state.enemies = [];
   state.allies = [];
   state.projectiles = [];
+  if (projectilePool) projectilePool.syncFrom(state.projectiles);
   state.gasClouds = [];
   state.objects = buildLevelObjects(level);
   state.waves = makeWaves(level);
   state.hitArcs = [];
   state.particles = [];
+  if (particlePool) particlePool.syncFrom(state.particles);
   state.cableOffset = 0;
   world.width = level.width;
   world.ground = level.ground;
@@ -339,7 +426,8 @@ function resetGame() {
   player.invincible = 0;
   player.gasTick = 0;
 
-  overlay.classList.add("is-hidden");
+  if (gameUi) gameUi.hideOverlay();
+  else overlay.classList.add("is-hidden");
   requestAnimationFrame(loop);
 }
 
@@ -762,7 +850,7 @@ function updateMiner(enemy, dx) {
 function throwProjectile(enemy, type) {
   const dir = Math.sign(player.x - enemy.x) || 1;
   const speed = type === "dynamite" || type === "gas" ? 190 : 260;
-  state.projectiles.push({
+  const projectile = {
     type,
     x: enemy.x + dir * 18,
     y: enemy.y - enemy.h / 2 + 12,
@@ -771,7 +859,12 @@ function throwProjectile(enemy, type) {
     r: type === "dynamite" || type === "gas" ? 10 : 7,
     life: type === "dynamite" || type === "gas" ? 2.2 : 1.7,
     damage: type === "dynamite" ? 22 : type === "gas" ? 7 : 11,
-  });
+  };
+  if (projectilePool) {
+    projectilePool.acquire(projectile);
+  } else {
+    state.projectiles.push(projectile);
+  }
 }
 
 function updateProjectiles(dt) {
@@ -794,9 +887,14 @@ function updateProjectiles(dt) {
     }
   });
 
-  state.projectiles = state.projectiles.filter((projectile) => {
-    return projectile.life > 0 && projectile.x > world.cameraX - 140 && projectile.x < world.cameraX + canvas.width + 180;
-  });
+  const shouldRemoveProjectile = (projectile) => {
+    return projectile.life <= 0 || projectile.x <= world.cameraX - 140 || projectile.x >= world.cameraX + canvas.width + 180;
+  };
+  if (projectilePool) {
+    projectilePool.releaseWhere(shouldRemoveProjectile);
+  } else {
+    state.projectiles = state.projectiles.filter((projectile) => !shouldRemoveProjectile(projectile));
+  }
 }
 
 function releaseGas(projectile) {
@@ -907,7 +1005,11 @@ function updateEffects(dt) {
     p.life -= dt;
   });
   state.hitArcs = state.hitArcs.filter((arc) => arc.life > 0);
-  state.particles = state.particles.filter((p) => p.life > 0);
+  if (particlePool) {
+    particlePool.releaseWhere((p) => p.life <= 0);
+  } else {
+    state.particles = state.particles.filter((p) => p.life > 0);
+  }
 }
 
 function updateCamera() {
@@ -917,6 +1019,10 @@ function updateCamera() {
 }
 
 function updateHud() {
+  if (gameUi) {
+    gameUi.updateHud(state);
+    return;
+  }
   scoreEl.textContent = Math.floor(state.score);
   energyEl.textContent = Math.max(0, Math.floor(state.energy));
   shopsEl.textContent = state.saved;
@@ -924,9 +1030,19 @@ function updateHud() {
 
 function endGame(message) {
   state.running = false;
+  const totalShops = state.objects.filter((obj) => obj.type === "shop").length;
+  if (gameUi) {
+    gameUi.showEndScreen({
+      title: message,
+      mapName: currentLevel().name,
+      score: state.score,
+      saved: state.saved,
+      totalShops,
+    });
+    return;
+  }
   overlay.classList.remove("is-hidden");
   overlay.querySelector("h1").textContent = message;
-  const totalShops = state.objects.filter((obj) => obj.type === "shop").length;
   overlay.querySelector("p").textContent = `Mapa: ${currentLevel().name}. Puntos: ${Math.floor(state.score)}. Negocios protegidos: ${state.saved}/${totalShops}.`;
   startButton.textContent = "Reintentar";
 }
@@ -1829,14 +1945,19 @@ function circleRect(circle, rect) {
 
 function burst(x, y, color) {
   for (let i = 0; i < 10; i += 1) {
-    state.particles.push({
+    const particle = {
       x,
       y,
       vx: (Math.random() - 0.5) * 170,
       vy: -Math.random() * 190,
       life: 0.34,
       color,
-    });
+    };
+    if (particlePool) {
+      particlePool.acquire(particle);
+    } else {
+      state.particles.push(particle);
+    }
   }
 }
 

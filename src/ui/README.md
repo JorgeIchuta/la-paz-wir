@@ -4,3 +4,7 @@ Interfaz del juego: HUD, overlay, controles tactiles, pausa y pantallas de victo
 
 Regla: esta carpeta puede tocar DOM, pero debe mantenerse separada de reglas de gameplay.
 
+Modulos actuales:
+
+- `game-ui.mjs`: HUD y overlay de final/reintento.
+
