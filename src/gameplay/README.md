@@ -8,3 +8,4 @@ Modulos actuales:
 
 - `combat.mjs`: ataque principal y dano al jugador.
 - `projectiles.mjs`: piedras, dinamita, gas y explosiones.
+- `waves.mjs`: oleadas, fases, spawns y helper de comida.

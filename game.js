@@ -182,6 +182,7 @@ let particlePool = null;
 let projectilePool = null;
 let projectileSystem = null;
 let combatSystem = null;
+let waveSystem = null;
 let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
@@ -331,6 +332,24 @@ import("./src/gameplay/combat.mjs")
     console.warn("Using fallback combat system.", error);
   });
 
+import("./src/gameplay/waves.mjs")
+  .then(({ createWaveSystem }) => {
+    waveSystem = createWaveSystem({
+      state,
+      player,
+      world,
+      canvas,
+      clamp,
+      burst,
+      showMessage,
+      enemyConfig,
+      enemySpeed,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback wave system.", error);
+  });
+
 function currentLevel() {
   return levels[state.levelIndex];
 }
@@ -353,10 +372,12 @@ function buildLevelObjects(level) {
 }
 
 function makeWaves(level) {
+  if (waveSystem) return waveSystem.makeWaves(level);
   return [];
 }
 
 function waveEnemies(index) {
+  if (waveSystem) return waveSystem.waveEnemies(index);
   if (index === 0) {
     return ["blocker", "blocker", "blocker", "blocker", "blocker", "blocker", "blocker", "blocker", "blocker", "blocker"];
   }
@@ -607,6 +628,7 @@ function currentGateX() {
 }
 
 function updateWaves() {
+  if (waveSystem) return waveSystem.updateWaves();
   if (state.finalStarted || state.wavePause > 0) return;
   if (state.elapsed < 4) return;
   if (hasFoodHelper()) return;
@@ -647,6 +669,7 @@ function updateWaves() {
 }
 
 function updateSupportMoment() {
+  if (waveSystem) return waveSystem.updateSupportMoment();
   if (state.finalStarted || state.elapsed < 45) return;
   const minute = Math.floor(state.elapsed / 60);
   const second = Math.floor(state.elapsed % 60);
@@ -658,6 +681,7 @@ function updateSupportMoment() {
 }
 
 function hasFoodHelper() {
+  if (waveSystem) return waveSystem.hasFoodHelper();
   return state.objects.some((obj) => obj.type === "food-helper" && obj.hp > 0);
 }
 
@@ -667,6 +691,7 @@ function showMessage(text, duration = 4.2) {
 }
 
 function spawnWaveGroup(wave) {
+  if (waveSystem) return waveSystem.spawnWaveGroup(wave);
   const count = Math.min(4, wave.queue.length);
   const group = wave.queue.splice(0, count);
   state.waveGroup += 1;
@@ -677,6 +702,7 @@ function spawnWaveGroup(wave) {
 }
 
 function spawnFoodHelper() {
+  if (waveSystem) return waveSystem.spawnFoodHelper();
   const x = clamp(player.x + player.dir * 82, world.cameraX + 56, world.cameraX + canvas.width - 56);
   state.objects.push({
     type: "food-helper",
@@ -693,6 +719,7 @@ function spawnFoodHelper() {
 }
 
 function spawnWaveEnemy(type, x, waveId) {
+  if (waveSystem) return waveSystem.spawnWaveEnemy(type, x, waveId);
   const progress = player.x / world.width;
   const config = enemyConfig(type);
   const earlyHp = config ? config.baseHp : type === "mallku" ? 3 : 1;
@@ -1030,6 +1057,7 @@ function updateObjects(dt = 1 / 60) {
 }
 
 function finishFoodBreak(waveId) {
+  if (waveSystem) return waveSystem.finishFoodBreak(waveId);
   if (!state.activeWave || state.activeWave.id !== waveId || !state.activeWave.waitingForFood) return;
   state.activeWave.waitingForFood = false;
   if (state.activeWave.queue.length > 0) {
