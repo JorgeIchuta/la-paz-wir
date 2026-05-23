@@ -47,10 +47,11 @@ PORT=5174 node src/main.mjs
 ## Estructura
 
 ```text
-index.html          Pantalla principal del juego
+index.html          Pagina HTML que sirve el servidor y carga src/main.mjs
 styles.css          Estilos y layout
 src/main.mjs        Entrypoint de navegador y servidor local
-src/game-app.mjs    Orquestacion actual del juego
+src/game-app.mjs    Composition root del navegador
+src/app/            Bootstrap, loop, estado y ensamblaje del juego
 src/server/         Servidor local ESM
 assets/             Fondos, sprites y recursos visuales
 docs/               Documentacion de produccion
@@ -60,4 +61,3 @@ docs/               Documentacion de produccion
 
 - Si no ves cambios recientes en el navegador, recarga con `Ctrl+F5`.
 - Los logs locales `server.out.log` y `server.err.log` estan ignorados por git.
-- `dev-server.js` queda solo como wrapper legacy hacia `src/server/dev-server.mjs`.
