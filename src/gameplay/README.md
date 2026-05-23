@@ -7,5 +7,6 @@ Regla: gameplay puede cambiar estado de juego, pero no debe dibujar directamente
 Modulos actuales:
 
 - `combat.mjs`: ataque principal y dano al jugador.
+- `objects.mjs`: objetos de nivel, helper, mascara y tiendas.
 - `projectiles.mjs`: piedras, dinamita, gas y explosiones.
 - `waves.mjs`: oleadas, fases, spawns y helper de comida.

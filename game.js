@@ -183,6 +183,7 @@ let projectilePool = null;
 let projectileSystem = null;
 let combatSystem = null;
 let waveSystem = null;
+let objectSystem = null;
 let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
@@ -350,11 +351,29 @@ import("./src/gameplay/waves.mjs")
     console.warn("Using fallback wave system.", error);
   });
 
+import("./src/gameplay/objects.mjs")
+  .then(({ createObjectSystem }) => {
+    objectSystem = createObjectSystem({
+      state,
+      player,
+      rectsOverlap,
+      playerBox,
+      objectBox,
+      showMessage,
+      finishFoodBreak,
+      burst,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback object system.", error);
+  });
+
 function currentLevel() {
   return levels[state.levelIndex];
 }
 
 function buildLevelObjects(level) {
+  if (objectSystem) return objectSystem.buildLevelObjects(level);
   const objects = [];
   const baseObjects = level.objects.map((obj) => ({ ...obj }));
   const repeat = level.objectRepeat || 3100;
@@ -1015,6 +1034,7 @@ function hitPlayer(damage, knockback) {
 }
 
 function updateObjects(dt = 1 / 60) {
+  if (objectSystem) return objectSystem.updateObjects(dt);
   state.objects.forEach((obj) => {
     if (obj.type === "food-helper") {
       obj.life -= dt;

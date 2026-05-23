@@ -139,5 +139,7 @@ Mitigacion:
 - [x] Crear `src/gameplay/waves.mjs`.
 - [x] Conectar `waves.mjs` con wrappers y fallback seguro en `game.js`.
 - [x] Validar `node --check ./src/gameplay/waves.mjs`.
-- [ ] Extraer `objects.mjs`.
+- [x] Crear `src/gameplay/objects.mjs`.
+- [x] Conectar `objects.mjs` con wrappers y fallback seguro en `game.js`.
+- [x] Validar `node --check ./src/gameplay/objects.mjs`.
 - [ ] Extraer `enemies-runtime.mjs`.
