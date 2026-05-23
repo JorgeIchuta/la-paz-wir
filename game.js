@@ -184,6 +184,7 @@ let projectileSystem = null;
 let combatSystem = null;
 let waveSystem = null;
 let objectSystem = null;
+let enemiesRuntime = null;
 let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
@@ -366,6 +367,27 @@ import("./src/gameplay/objects.mjs")
   })
   .catch((error) => {
     console.warn("Using fallback object system.", error);
+  });
+
+import("./src/gameplay/enemies-runtime.mjs")
+  .then(({ createEnemiesRuntime }) => {
+    enemiesRuntime = createEnemiesRuntime({
+      state,
+      player,
+      world,
+      canvas,
+      clamp,
+      rectsOverlap,
+      playerBox,
+      enemyBox,
+      enemyConfig,
+      throwProjectile,
+      hitPlayer,
+      burst,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback enemies runtime.", error);
   });
 
 function currentLevel() {
@@ -642,6 +664,7 @@ function maybeAttack() {
 }
 
 function currentGateX() {
+  if (enemiesRuntime) return enemiesRuntime.currentGateX();
   if (state.finalStarted && state.enemies.some((enemy) => enemy.type === "miner")) return world.width - 1880;
   return null;
 }
@@ -761,6 +784,7 @@ function spawnWaveEnemy(type, x, waveId) {
 }
 
 function updateFinalEncounter() {
+  if (enemiesRuntime) return enemiesRuntime.updateFinalEncounter();
   if (state.finalStarted || state.elapsed < 180) return;
   state.finalStarted = true;
   state.bossSpawned = true;
@@ -803,6 +827,7 @@ function updateFinalEncounter() {
 }
 
 function enemySpeed(type, progress) {
+  if (enemiesRuntime) return enemiesRuntime.enemySpeed(type, progress);
   const config = enemyConfig(type);
   if (config) return config.baseSpeed + progress * config.speedScale;
   if (type === "looter") return 78 + progress * 36;
@@ -811,6 +836,7 @@ function enemySpeed(type, progress) {
 }
 
 function updateEnemies(dt) {
+  if (enemiesRuntime) return enemiesRuntime.updateEnemies(dt);
   state.enemies.forEach((enemy) => {
     const target = chooseEnemyTarget(enemy);
     const dx = target.x - enemy.x;
@@ -865,6 +891,7 @@ function updateEnemies(dt) {
 }
 
 function updateAllies(dt) {
+  if (enemiesRuntime) return enemiesRuntime.updateAllies(dt);
   state.allies.forEach((ally) => {
     const target = state.enemies.find((enemy) => enemy.policeTarget);
     if (!target) {
@@ -896,6 +923,7 @@ function updateAllies(dt) {
 }
 
 function chooseEnemyTarget(enemy) {
+  if (enemiesRuntime) return enemiesRuntime.chooseEnemyTarget(enemy);
   if (enemy.type !== "looter") return player;
   let target = player;
   let best = Infinity;
@@ -911,6 +939,7 @@ function chooseEnemyTarget(enemy) {
 }
 
 function updateBlocker(enemy, dx) {
+  if (enemiesRuntime) return enemiesRuntime.updateBlocker(enemy, dx);
   const attack = enemyConfig(enemy.type)?.attack;
   const distance = Math.abs(dx);
   if (distance < (attack?.retreatRange ?? 150)) enemy.vx *= -0.45;
@@ -921,6 +950,7 @@ function updateBlocker(enemy, dx) {
 }
 
 function updateMiner(enemy, dx) {
+  if (enemiesRuntime) return enemiesRuntime.updateMiner(enemy, dx);
   const attack = enemyConfig(enemy.type)?.attack;
   const distance = Math.abs(dx);
   if (distance < 190) enemy.vx *= -0.35;

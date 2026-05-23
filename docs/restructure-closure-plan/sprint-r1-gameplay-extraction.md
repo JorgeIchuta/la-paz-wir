@@ -142,4 +142,6 @@ Mitigacion:
 - [x] Crear `src/gameplay/objects.mjs`.
 - [x] Conectar `objects.mjs` con wrappers y fallback seguro en `game.js`.
 - [x] Validar `node --check ./src/gameplay/objects.mjs`.
-- [ ] Extraer `enemies-runtime.mjs`.
+- [x] Crear `src/gameplay/enemies-runtime.mjs`.
+- [x] Conectar `enemies-runtime.mjs` con wrappers y fallback seguro en `game.js`.
+- [x] Validar `node --check ./src/gameplay/enemies-runtime.mjs`.
