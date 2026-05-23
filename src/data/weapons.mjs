@@ -1,0 +1,33 @@
+export const weaponDefinitions = {
+  whip: {
+    label: "Chicote",
+    kind: "melee",
+    damage: 1,
+    cooldown: 0.52,
+    activeTime: 0.28,
+    range: 128,
+    height: 62,
+    knockback: 260,
+    cost: 0,
+    upgrades: ["whip-range-1", "whip-damage-1", "whip-cooldown-1"],
+  },
+  sling: {
+    label: "Honda",
+    kind: "projectile",
+    damage: 1,
+    cooldown: 0.75,
+    projectile: "slingStone",
+    ammoCost: 1,
+    cost: 120,
+    upgrades: ["sling-speed-1", "sling-ammo-1"],
+  },
+  shield: {
+    label: "Escudo de calamina",
+    kind: "defense",
+    cooldown: 0.2,
+    blockAngle: 95,
+    speedMultiplier: 0.72,
+    cost: 160,
+    upgrades: ["shield-durability-1", "shield-move-1"],
+  },
+};

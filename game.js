@@ -125,7 +125,7 @@ function makeChromaTransparent(image) {
   return offscreen;
 }
 
-const levels = [
+let levels = [
   {
     id: "street",
     name: "Calle Pacena",
@@ -165,6 +165,62 @@ const levels = [
   },
 ];
 
+let enemyConfigs = null;
+let coreMath = null;
+
+function resolveLevelBackground(background) {
+  if (background === "street") return assets.streetBackground;
+  if (background === "teleferico") return assets.telefericoBackground;
+  return background;
+}
+
+function hydrateLevelDefinition(level) {
+  return {
+    ...level,
+    background: resolveLevelBackground(level.background),
+    objects: level.objects.map((obj) => ({ ...obj })),
+  };
+}
+
+function applyLevelDefinitions(levelDefinitions) {
+  if (!Array.isArray(levelDefinitions) || levelDefinitions.length === 0) return;
+  levels = levelDefinitions.map(hydrateLevelDefinition);
+  state.levelIndex = clamp(state.levelIndex, 0, levels.length - 1);
+}
+
+import("./src/data/levels.mjs")
+  .then(({ levelDefinitions }) => {
+    applyLevelDefinitions(levelDefinitions);
+  })
+  .catch((error) => {
+    console.warn("Using fallback level data.", error);
+  });
+
+function applyEnemyDefinitions(enemyDefinitions) {
+  if (!enemyDefinitions || typeof enemyDefinitions !== "object") return;
+  enemyConfigs = enemyDefinitions;
+}
+
+function enemyConfig(type) {
+  return enemyConfigs && enemyConfigs[type] ? enemyConfigs[type] : null;
+}
+
+import("./src/data/enemies.mjs")
+  .then(({ enemyDefinitions }) => {
+    applyEnemyDefinitions(enemyDefinitions);
+  })
+  .catch((error) => {
+    console.warn("Using fallback enemy data.", error);
+  });
+
+import("./src/core/math.mjs")
+  .then((mathModule) => {
+    coreMath = mathModule;
+  })
+  .catch((error) => {
+    console.warn("Using fallback math helpers.", error);
+  });
+
 function currentLevel() {
   return levels[state.levelIndex];
 }
@@ -172,7 +228,7 @@ function currentLevel() {
 function buildLevelObjects(level) {
   const objects = [];
   const baseObjects = level.objects.map((obj) => ({ ...obj }));
-  const repeat = 3100;
+  const repeat = level.objectRepeat || 3100;
 
   for (let offset = 0; offset < level.width - 900; offset += repeat) {
     baseObjects.forEach((obj) => {
@@ -513,17 +569,21 @@ function spawnFoodHelper() {
 
 function spawnWaveEnemy(type, x, waveId) {
   const progress = player.x / world.width;
+  const config = enemyConfig(type);
+  const earlyHp = config ? config.baseHp : type === "mallku" ? 3 : 1;
+  const lateHp = config ? config.lateHp : type === "mallku" ? 3 : 2;
+  const hp = progress > 0.45 ? lateHp : earlyHp;
   state.enemies.push({
     type,
     waveId,
     x: clamp(x, 90, world.width - 90),
     y: world.ground - 24,
-    w: type === "mallku" ? 32 : 28,
-    h: type === "mallku" ? 52 : 48,
+    w: config ? config.width : type === "mallku" ? 32 : 28,
+    h: config ? config.height : type === "mallku" ? 52 : 48,
     vx: 0,
     vy: 0,
-    hp: type === "mallku" ? 3 : progress > 0.45 ? 2 : 1,
-    maxHp: type === "mallku" ? 3 : progress > 0.45 ? 2 : 1,
+    hp,
+    maxHp: hp,
     speed: enemySpeed(type, progress),
     attackTimer: 0.25 + Math.random() * 0.5,
   });
@@ -536,20 +596,22 @@ function updateFinalEncounter() {
   state.activeWave = null;
   state.enemies = state.enemies.filter((enemy) => !enemy.waveId);
   const baseX = player.x + 430;
+  const minerConfig = enemyConfig("miner");
   for (let i = 0; i < 3; i += 1) {
+    const finalBoss = i === 2;
     state.enemies.push({
       type: "miner",
-      finalBoss: i === 2,
+      finalBoss,
       policeTarget: i < 2,
       x: baseX + i * 105,
       y: world.ground - 36,
-      w: 46,
-      h: 72,
+      w: minerConfig?.width ?? 46,
+      h: minerConfig?.height ?? 72,
       vx: 0,
       vy: 0,
-      hp: i === 2 ? 16 : 10,
-      maxHp: i === 2 ? 16 : 10,
-      speed: i === 2 ? 56 : 46,
+      hp: finalBoss ? minerConfig?.finalBossHp ?? 16 : minerConfig?.baseHp ?? 10,
+      maxHp: finalBoss ? minerConfig?.finalBossHp ?? 16 : minerConfig?.baseHp ?? 10,
+      speed: finalBoss ? minerConfig?.finalBossSpeed ?? 56 : minerConfig?.baseSpeed ?? 46,
       attackTimer: 0.7 + i * 0.35,
     });
   }
@@ -570,6 +632,8 @@ function updateFinalEncounter() {
 }
 
 function enemySpeed(type, progress) {
+  const config = enemyConfig(type);
+  if (config) return config.baseSpeed + progress * config.speedScale;
   if (type === "looter") return 78 + progress * 36;
   if (type === "mallku") return 98 + progress * 34;
   return 48 + progress * 28;
@@ -604,19 +668,22 @@ function updateEnemies(dt) {
       if (obj.hp <= 0 || obj.type !== "shop") return;
       if (enemy.type === "blocker" || enemy.type === "miner") return;
       if (Math.abs(enemy.x - obj.x) < 44 && enemy.attackTimer <= 0) {
-        obj.hp -= enemy.type === "looter" ? 24 : 10;
-        enemy.attackTimer = enemy.type === "looter" ? 0.55 : 0.8;
+        const config = enemyConfig(enemy.type);
+        obj.hp -= config?.shopDamage ?? (enemy.type === "looter" ? 24 : 10);
+        enemy.attackTimer = config?.shopAttackCooldown ?? (enemy.type === "looter" ? 0.55 : 0.8);
         burst(obj.x, obj.y - 8, "#d94f35");
       }
     });
 
     if (rectsOverlap(playerBox(), enemyBox(enemy)) && player.invincible <= 0) {
-      hitPlayer(enemy.type === "mallku" ? 16 : 10, dir * 180);
+      const damage = enemyConfig(enemy.type)?.contactDamage ?? (enemy.type === "mallku" ? 16 : 10);
+      hitPlayer(damage, dir * 180);
     }
 
     if (enemy.type === "mallku" && Math.abs(player.x - enemy.x) < 58 && Math.abs(player.y - enemy.y) < 48 && enemy.attackTimer <= 0) {
-      hitPlayer(18, dir * 240);
-      enemy.attackTimer = 1.05;
+      const attack = enemyConfig(enemy.type)?.attack;
+      hitPlayer(attack?.damage ?? 18, dir * (attack?.knockback ?? 240));
+      enemy.attackTimer = attack?.cooldown ?? 1.05;
     }
   });
 
@@ -673,19 +740,21 @@ function chooseEnemyTarget(enemy) {
 }
 
 function updateBlocker(enemy, dx) {
+  const attack = enemyConfig(enemy.type)?.attack;
   const distance = Math.abs(dx);
-  if (distance < 150) enemy.vx *= -0.45;
-  if (distance < 330 && enemy.attackTimer <= 0) {
-    throwProjectile(enemy, "stone");
-    enemy.attackTimer = 1.35;
+  if (distance < (attack?.retreatRange ?? 150)) enemy.vx *= -0.45;
+  if (distance < (attack?.range ?? 330) && enemy.attackTimer <= 0) {
+    throwProjectile(enemy, attack?.projectile ?? "stone");
+    enemy.attackTimer = attack?.cooldown ?? 1.35;
   }
 }
 
 function updateMiner(enemy, dx) {
+  const attack = enemyConfig(enemy.type)?.attack;
   const distance = Math.abs(dx);
   if (distance < 190) enemy.vx *= -0.35;
-  if (distance < 430 && enemy.attackTimer <= 0) {
-    throwProjectile(enemy, enemy.finalBoss ? "gas" : "dynamite");
+  if (distance < (attack?.range ?? 430) && enemy.attackTimer <= 0) {
+    throwProjectile(enemy, enemy.finalBoss ? attack?.finalBossProjectile ?? "gas" : attack?.projectile ?? "dynamite");
     enemy.attackTimer = enemy.finalBoss ? 1.45 : 1.75;
   }
 }
@@ -1747,10 +1816,12 @@ function objectBox(obj) {
 }
 
 function rectsOverlap(a, b) {
+  if (coreMath) return coreMath.rectsOverlap(a, b);
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
 function circleRect(circle, rect) {
+  if (coreMath) return coreMath.circleRect(circle, rect);
   const nearestX = clamp(circle.x, rect.x, rect.x + rect.w);
   const nearestY = clamp(circle.y, rect.y, rect.y + rect.h);
   return Math.hypot(circle.x - nearestX, circle.y - nearestY) <= circle.r;
@@ -1770,6 +1841,7 @@ function burst(x, y, color) {
 }
 
 function clamp(value, min, max) {
+  if (coreMath) return coreMath.clamp(value, min, max);
   return Math.max(min, Math.min(max, value));
 }
 
