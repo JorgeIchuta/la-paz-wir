@@ -185,6 +185,7 @@ let combatSystem = null;
 let waveSystem = null;
 let objectSystem = null;
 let enemiesRuntime = null;
+let effectsRenderer = null;
 let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
@@ -388,6 +389,19 @@ import("./src/gameplay/enemies-runtime.mjs")
   })
   .catch((error) => {
     console.warn("Using fallback enemies runtime.", error);
+  });
+
+import("./src/render/effects.mjs")
+  .then(({ createEffectsRenderer }) => {
+    effectsRenderer = createEffectsRenderer({
+      ctx,
+      state,
+      world,
+      px,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback effects renderer.", error);
   });
 
 function currentLevel() {
@@ -1916,6 +1930,7 @@ function drawPlayer() {
 }
 
 function drawEffects() {
+  if (effectsRenderer) return effectsRenderer.drawEffects();
   ctx.save();
   ctx.translate(-world.cameraX, 0);
   state.hitArcs.forEach((arc) => {
