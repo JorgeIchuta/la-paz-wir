@@ -181,6 +181,7 @@ let coreMath = null;
 let particlePool = null;
 let projectilePool = null;
 let projectileSystem = null;
+let combatSystem = null;
 let rawLevelDefinitions = null;
 
 function resolveLevelBackground(background) {
@@ -312,6 +313,22 @@ import("./src/gameplay/projectiles.mjs")
   })
   .catch((error) => {
     console.warn("Using fallback projectile system.", error);
+  });
+
+import("./src/gameplay/combat.mjs")
+  .then(({ createCombatSystem }) => {
+    combatSystem = createCombatSystem({
+      state,
+      player,
+      input,
+      rectsOverlap,
+      enemyBox,
+      objectBox,
+      burst,
+    });
+  })
+  .catch((error) => {
+    console.warn("Using fallback combat system.", error);
   });
 
 function currentLevel() {
@@ -546,6 +563,7 @@ function updatePlayer(dt) {
 }
 
 function maybeAttack() {
+  if (combatSystem) return combatSystem.maybeAttack();
   if (!input.attack || player.attackCooldown > 0) return;
   player.attackCooldown = 0.52;
   player.attackTimer = 0.28;
@@ -961,6 +979,7 @@ function explode(projectile) {
 }
 
 function hitPlayer(damage, knockback) {
+  if (combatSystem) return combatSystem.hitPlayer(damage, knockback);
   if (player.invincible > 0) return;
   state.energy -= damage;
   player.invincible = 0.7;

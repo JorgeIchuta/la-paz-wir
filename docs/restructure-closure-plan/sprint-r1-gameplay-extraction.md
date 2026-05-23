@@ -133,7 +133,9 @@ Mitigacion:
 - [x] Conectar `projectiles.mjs` con wrappers y fallback seguro en `game.js`.
 - [x] Validar `node --check ./game.js`.
 - [x] Validar `node --check ./src/gameplay/projectiles.mjs`.
-- [ ] Extraer `combat.mjs`.
+- [x] Crear `src/gameplay/combat.mjs`.
+- [x] Conectar `combat.mjs` con wrappers y fallback seguro en `game.js`.
+- [x] Validar `node --check ./src/gameplay/combat.mjs`.
 - [ ] Extraer `waves.mjs`.
 - [ ] Extraer `objects.mjs`.
 - [ ] Extraer `enemies-runtime.mjs`.
