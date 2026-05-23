@@ -1,0 +1,176 @@
+:root {
+  color-scheme: dark;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #101210;
+  color: #f3efe6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100svh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(220, 62, 36, 0.18), transparent 28%),
+    linear-gradient(135deg, #151815 0%, #24241c 45%, #171717 100%);
+}
+
+button {
+  font: inherit;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.shell {
+  width: 100%;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+}
+
+.game-panel {
+  position: relative;
+  width: min(100%, 430px);
+  height: min(100svh - 24px, 820px);
+  min-height: 600px;
+  border: 2px solid #3c3a30;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #151515;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+}
+
+.hud {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(17, 18, 16, 0.84);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(8px);
+}
+
+.hud > div {
+  padding: 9px 8px 8px;
+  text-align: center;
+}
+
+.hud-label {
+  display: block;
+  margin-bottom: 2px;
+  color: #bdb6a8;
+  font-size: 11px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.hud strong {
+  font-size: 18px;
+  line-height: 1;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #20211f;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.overlay {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  text-align: center;
+  background: rgba(12, 13, 12, 0.82);
+}
+
+.overlay.is-hidden {
+  display: none;
+}
+
+.overlay h1 {
+  margin: 0;
+  color: #f7c84f;
+  font-size: 46px;
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.overlay p {
+  max-width: 310px;
+  margin: 0;
+  color: #e5dcc8;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.overlay button {
+  min-width: 150px;
+  min-height: 48px;
+  border-radius: 8px;
+  background: #d94f35;
+  color: #fff8ec;
+  font-weight: 700;
+  box-shadow: 0 8px 0 #7e291c;
+}
+
+.controls {
+  position: absolute;
+  z-index: 5;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1.18fr;
+  gap: 8px;
+}
+
+.controls button {
+  height: 58px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(246, 238, 220, 0.14);
+  color: #fff4df;
+  font-size: 30px;
+  font-weight: 800;
+  backdrop-filter: blur(10px);
+}
+
+#attackButton {
+  background: rgba(247, 200, 79, 0.28);
+  color: #ffe189;
+}
+
+@media (max-height: 640px) {
+  .game-panel {
+    min-height: 520px;
+  }
+
+  .controls button {
+    height: 50px;
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>La Paz Wir</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="game-panel" aria-label="Juego La Paz Wir">
+      <div class="hud">
+        <div>
+          <span class="hud-label">Puntos</span>
+          <strong id="score">0</strong>
+        </div>
+        <div>
+          <span class="hud-label">Energia</span>
+          <strong id="energy">100</strong>
+        </div>
+        <div>
+          <span class="hud-label">Negocios</span>
+          <strong id="shops">0</strong>
+        </div>
+      </div>
+
+      <canvas id="game" width="390" height="690"></canvas>
+
+      <div id="overlay" class="overlay">
+        <h1>La Paz Wir</h1>
+        <p>Avanza por el mapa del Teleferico, salta barricadas y usa el chicote para abrirte paso entre oleadas de caos urbano.</p>
+        <button id="startButton" type="button">Jugar</button>
+      </div>
+
+      <div class="controls" aria-label="Controles">
+        <button id="leftButton" type="button" aria-label="Mover izquierda">&lsaquo;</button>
+        <button id="jumpButton" type="button" aria-label="Saltar">&uarr;</button>
+        <button id="rightButton" type="button" aria-label="Mover derecha">&rsaquo;</button>
+        <button id="attackButton" type="button" aria-label="Usar chicote">&#9673;</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
