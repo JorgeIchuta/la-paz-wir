@@ -6,7 +6,10 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "../..");
-const port = Number(process.env.PORT || 5173);
+const host = "127.0.0.1";
+const defaultPort = 5173;
+const requestedPort = Number(process.env.PORT || defaultPort);
+const shouldRetryPort = !process.env.PORT;
 
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -16,7 +19,8 @@ const types = {
   ".png": "image/png",
 };
 
-const server = http.createServer((request, response) => {
+function createServer() {
+  return http.createServer((request, response) => {
   const urlPath = request.url === "/" ? "/index.html" : decodeURIComponent(request.url.split("?")[0]);
   const filePath = path.normalize(path.join(root, urlPath));
 
@@ -36,9 +40,30 @@ const server = http.createServer((request, response) => {
     response.writeHead(200, { "Content-Type": types[path.extname(filePath)] || "application/octet-stream" });
     response.end(data);
   });
-});
+  });
+}
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`La Paz Wir running at http://127.0.0.1:${port}`);
-});
+function listen(port, attemptsLeft = 10) {
+  const server = createServer();
 
+  server.once("error", (error) => {
+    if (error.code === "EADDRINUSE" && shouldRetryPort && attemptsLeft > 0) {
+      console.warn(`Port ${port} is already in use. Trying ${port + 1}...`);
+      listen(port + 1, attemptsLeft - 1);
+      return;
+    }
+
+    if (error.code === "EADDRINUSE") {
+      console.error(`Port ${port} is already in use. Set PORT to another value, for example: $env:PORT=5174; node src/main.mjs`);
+    } else {
+      console.error(error);
+    }
+    process.exitCode = 1;
+  });
+
+  server.listen(port, host, () => {
+    console.log(`La Paz Wir running at http://${host}:${port}`);
+  });
+}
+
+listen(requestedPort);

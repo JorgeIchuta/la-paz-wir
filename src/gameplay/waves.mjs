@@ -9,8 +9,15 @@ export function createWaveSystem({
   enemyConfig,
   enemySpeed,
 }) {
-  function makeWaves() {
-    return [];
+  function makeWaves(level) {
+    if (!Array.isArray(level?.encounters)) return [];
+    return level.encounters.map((encounter) => ({
+      ...encounter,
+      groups: encounter.groups.map((group) => [...group]),
+      nextGroup: 0,
+      cleared: false,
+      started: false,
+    }));
   }
 
   function waveEnemies(index) {
@@ -30,7 +37,7 @@ export function createWaveSystem({
     if (state.activeWave) {
       const alive = state.enemies.some((enemy) => enemy.waveId === state.activeWave.id);
       if (!alive) {
-        if (state.activeWave.queue.length > 0) {
+        if (hasMoreGroups(state.activeWave)) {
           spawnWaveGroup(state.activeWave);
           state.score += 70;
         } else {
@@ -45,6 +52,16 @@ export function createWaveSystem({
       return;
     }
 
+    const encounter = nextReadyEncounter();
+    if (encounter) {
+      // Encounters advance by position so Level 1 pacing stays deterministic across player skill levels.
+      encounter.started = true;
+      state.activeWave = encounter;
+      spawnWaveGroup(encounter);
+      state.waveIndex += 1;
+      return;
+    }
+
     if (state.elapsed >= 180) return;
     if (player.x < state.nextWaveX) return;
     const phaseIndex = Math.min(2, Math.floor(state.elapsed / 60));
@@ -55,12 +72,23 @@ export function createWaveSystem({
       cleared: false,
       phase: phaseIndex,
       queue: waveEnemies(phaseIndex),
+      groups: null,
+      nextGroup: 0,
       waitingForFood: false,
     };
     wave.released = true;
     state.activeWave = wave;
     spawnWaveGroup(wave);
     state.waveIndex += 1;
+  }
+
+  function nextReadyEncounter() {
+    return state.waves.find((wave) => !wave.started && !wave.cleared && player.x >= wave.triggerX);
+  }
+
+  function hasMoreGroups(wave) {
+    if (Array.isArray(wave.groups)) return wave.nextGroup < wave.groups.length;
+    return wave.queue.length > 0;
   }
 
   function updateSupportMoment() {
@@ -79,13 +107,23 @@ export function createWaveSystem({
   }
 
   function spawnWaveGroup(wave) {
-    const count = Math.min(4, wave.queue.length);
-    const group = wave.queue.splice(0, count);
+    const group = nextSpawnGroup(wave);
+    if (group.length === 0) return;
     state.waveGroup += 1;
     group.forEach((type, index) => {
       const offsets = [-180, 105, 245, 360];
       spawnWaveEnemy(type, player.x + offsets[index], wave.id);
     });
+  }
+
+  function nextSpawnGroup(wave) {
+    if (Array.isArray(wave.groups)) {
+      const group = wave.groups[wave.nextGroup] || [];
+      wave.nextGroup += 1;
+      return group;
+    }
+    const count = Math.min(4, wave.queue.length);
+    return wave.queue.splice(0, count);
   }
 
   function spawnFoodHelper() {
@@ -129,9 +167,14 @@ export function createWaveSystem({
   function finishFoodBreak(waveId) {
     if (!state.activeWave || state.activeWave.id !== waveId || !state.activeWave.waitingForFood) return;
     state.activeWave.waitingForFood = false;
-    if (state.activeWave.queue.length > 0) {
+    if (hasMoreGroups(state.activeWave)) {
       spawnWaveGroup(state.activeWave);
     }
+  }
+
+  function currentGateX() {
+    if (!state.activeWave?.gate) return null;
+    return state.activeWave.triggerX + (state.activeWave.gateOffset ?? 620);
   }
 
   return {
@@ -144,5 +187,6 @@ export function createWaveSystem({
     spawnFoodHelper,
     spawnWaveEnemy,
     finishFoodBreak,
+    currentGateX,
   };
 }

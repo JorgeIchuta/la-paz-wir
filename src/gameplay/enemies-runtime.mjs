@@ -11,14 +11,22 @@ export function createEnemiesRuntime({
   throwProjectile,
   hitPlayer,
   burst,
+  currentLevel,
 }) {
   function currentGateX() {
-    if (state.finalStarted && state.enemies.some((enemy) => enemy.type === "miner")) return world.width - 1880;
+    if (state.finalStarted && state.enemies.some((enemy) => enemy.type === "miner")) {
+      return currentLevel()?.bossGateX ?? world.width - 1880;
+    }
     return null;
   }
 
   function updateFinalEncounter() {
-    if (state.finalStarted || state.elapsed < 180) return;
+    if (state.finalStarted) return;
+    const level = currentLevel();
+    const reachedBossByPosition = Number.isFinite(level?.bossTriggerX) && player.x >= level.bossTriggerX;
+    const reachedBossByTime = !Number.isFinite(level?.bossTriggerX) && state.elapsed >= (level?.bossTriggerSeconds ?? 180);
+    // Position-based boss starts make authored levels reliable, while the old time trigger remains a fallback.
+    if (!reachedBossByPosition && !reachedBossByTime) return;
     state.finalStarted = true;
     state.bossSpawned = true;
     state.activeWave = null;

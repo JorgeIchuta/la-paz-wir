@@ -8,11 +8,12 @@ export function createPlayerSystem({
   playerBox,
   objectBox,
   currentGateX,
+  tuning,
 }) {
   function update(dt) {
-    const accel = 1700;
-    const friction = player.grounded ? 0.78 : 0.94;
-    const maxSpeed = 205;
+    const accel = tuning.acceleration;
+    const friction = player.grounded ? tuning.groundFriction : tuning.airFriction;
+    const maxSpeed = tuning.maxSpeed;
 
     if (input.left) {
       player.vx -= accel * dt;
@@ -27,11 +28,11 @@ export function createPlayerSystem({
     player.vx = clamp(player.vx, -maxSpeed, maxSpeed);
 
     if (input.jump && player.grounded) {
-      player.vy = -520;
+      player.vy = tuning.jumpVelocity;
       player.grounded = false;
     }
 
-    player.vy += 1200 * dt;
+    player.vy += tuning.gravity * dt;
     player.x += player.vx * dt;
     player.y += player.vy * dt;
     player.x = clamp(player.x, 40, world.width - 60);

@@ -52,7 +52,7 @@ export function createInitialState() {
     hitArcs: [],
     particles: [],
     cableOffset: 0,
-    levelIndex: 1,
+    levelIndex: 0,
   };
 }
 
@@ -63,11 +63,12 @@ export function resetRuntimeState({
   level,
   objects,
   waves,
+  tuning,
 }) {
   state.running = true;
   state.lastTime = performance.now();
   state.score = 0;
-  state.energy = 100;
+  state.energy = tuning?.startingEnergy ?? 100;
   state.saved = 0;
   state.elapsed = 0;
   state.waveIndex = 0;

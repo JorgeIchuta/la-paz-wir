@@ -1,7 +1,8 @@
 export class ObjectPool {
-  constructor(createItem, resetItem, initialSize = 0) {
+  constructor(createItem, resetItem, initialSize = 0, maxSize = initialSize || Infinity) {
     this.createItem = createItem;
     this.resetItem = resetItem;
+    this.maxSize = maxSize;
     this.available = [];
     this.active = [];
 
@@ -11,6 +12,8 @@ export class ObjectPool {
   }
 
   acquire(config) {
+    // Returning null keeps high-frequency effects bounded instead of growing arrays during busy combat.
+    if (this.active.length >= this.maxSize && this.available.length === 0) return null;
     const item = this.available.pop() || this.createItem();
     this.resetItem(item, config);
     this.active.push(item);

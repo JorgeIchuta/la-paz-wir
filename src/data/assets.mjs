@@ -1,6 +1,6 @@
 export const assetManifest = {
   backgrounds: {
-    street: "assets/backgrounds/la-paz-playable-map-long.png",
+    street: "assets/level-1/background/background-la-paz-teleferico-map-extended-aligned.png",
     teleferico: "assets/backgrounds/la-paz-teleferico-map-extended-aligned.png",
   },
   sprites: {
@@ -14,7 +14,6 @@ export const assetManifest = {
     foodHelper: "assets/sprites/senora-pollera-helper.png",
     foodHelperWalk: "assets/sprites/senora-pollera-helper-detailed-walk.png",
     policeAlly: "assets/sprites/police-ally.png",
-    pacenaKiosk: "assets/sprites/kiosco-paceno-game.png",
   },
 };
 

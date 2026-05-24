@@ -13,6 +13,12 @@ export function createObjectSystem({
     const baseObjects = level.objects.map((obj) => ({ ...obj }));
     const repeat = level.objectRepeat || 3100;
 
+    if (!level.objectRepeat) {
+      objects.push(...baseObjects);
+      objects.push({ type: "mask", x: level.gasMaskX ?? level.width - 1700, y: level.ground - 56, w: 34, h: 34, hp: 1, picked: false });
+      return objects;
+    }
+
     for (let offset = 0; offset < level.width - 900; offset += repeat) {
       baseObjects.forEach((obj) => {
         const x = obj.x + offset;
@@ -21,7 +27,7 @@ export function createObjectSystem({
       });
     }
 
-    objects.push({ type: "mask", x: level.width - 1700, y: level.ground - 56, w: 34, h: 34, hp: 1, picked: false });
+    objects.push({ type: "mask", x: level.gasMaskX ?? level.width - 1700, y: level.ground - 56, w: 34, h: 34, hp: 1, picked: false });
     return objects;
   }
 

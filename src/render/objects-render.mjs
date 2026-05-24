@@ -14,57 +14,8 @@ export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacter
       px(obj.x - obj.w / 2 + 3, obj.y - obj.h / 2 + 3, obj.w - 6, obj.h - 6, "#80512c");
       strokePx(obj.x - obj.w / 2 + 7, obj.y - obj.h / 2 + 7, obj.w - 14, obj.h - 14, "#3c2418");
     }
-    if (obj.type === "shop") drawPacenaShop(obj);
     if (obj.type === "mask") drawGasMask(obj.x, obj.y);
     if (obj.type === "food-helper") drawFoodHelper(obj);
-  }
-
-  function drawPacenaShop(obj) {
-    if (assets.pacenaKiosk.complete && assets.pacenaKiosk.naturalWidth > 0) {
-      const width = 116;
-      const height = 99;
-      ctx.globalAlpha = obj.hp > 0 ? 1 : 0.35;
-      ctx.drawImage(assets.pacenaKiosk, obj.x - width / 2, obj.y - 53, width, height);
-      px(obj.x - 30, obj.y + 44, 60, 5, "#111");
-      px(obj.x - 30, obj.y + 44, 60 * Math.max(0, obj.hp / 100), 5, "#71c879");
-      ctx.globalAlpha = 1;
-      return;
-    }
-
-    const x = obj.x - 42;
-    const y = obj.y - 46;
-    const saved = obj.saved;
-    const wall = saved ? "#3f7356" : "#315c68";
-    const trim = saved ? "#65a572" : "#4b8191";
-
-    ctx.globalAlpha = obj.hp > 0 ? 1 : 0.35;
-    px(x - 7, y + 9, 98, 79, "#151515");
-    px(x - 3, y + 12, 90, 70, wall);
-    px(x + 3, y + 17, 78, 14, trim);
-    px(x + 9, y + 35, 24, 27, "#171717");
-    px(x + 13, y + 39, 16, 22, "#ead9b6");
-    px(x + 48, y + 36, 25, 18, "#171717");
-    px(x + 51, y + 39, 19, 12, "#1f3545");
-
-    px(x - 12, y - 2, 104, 16, "#191512");
-    for (let i = 0; i < 7; i += 1) {
-      const color = ["#efbd4f", "#d94f35", "#2367a8", "#f0eee1"][i % 4];
-      px(x - 9 + i * 15, y, 12, 13, color);
-    }
-
-    px(x - 10, y + 53, 102, 22, "#4d2f1e");
-    px(x - 5, y + 57, 21, 13, "#d9863a");
-    px(x + 20, y + 57, 22, 13, "#d94f35");
-    px(x + 47, y + 57, 20, 13, "#66a84f");
-    px(x + 71, y + 56, 14, 14, "#e0b458");
-    px(x + 1, y + 60, 5, 5, "#f1c84f");
-    px(x + 27, y + 60, 5, 5, "#f06f3e");
-    px(x + 53, y + 60, 5, 5, "#8fd06d");
-
-    drawWovenBanner(x - 15, y + 33);
-    px(obj.x - 30, obj.y + 44, 60, 5, "#111");
-    px(obj.x - 30, obj.y + 44, 60 * Math.max(0, obj.hp / 100), 5, "#71c879");
-    ctx.globalAlpha = 1;
   }
 
   function drawFoodHelper(obj) {
@@ -119,14 +70,6 @@ export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacter
     px(x - 8, y + 9, 16, 7, "#252f27");
     px(x - 19, y - 4, 7, 15, "#263428");
     px(x + 12, y - 4, 7, 15, "#263428");
-  }
-
-  function drawWovenBanner(x, y) {
-    px(x, y, 28, 38, "#243544");
-    px(x + 3, y + 4, 22, 30, "#d36d39");
-    px(x + 8, y + 9, 12, 8, "#2367a8");
-    px(x + 6, y + 21, 17, 6, "#e2bd4e");
-    px(x + 10, y + 29, 9, 5, "#5a9d55");
   }
 
   return { drawObject };

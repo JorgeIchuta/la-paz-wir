@@ -61,6 +61,8 @@ export function createProjectileSystem({
 
   function releaseGas(projectile) {
     burst(projectile.x, projectile.y - 12, "#8fb46a");
+    // Gas is capped because each cloud checks player overlap every frame.
+    if (state.gasClouds.length >= 4) state.gasClouds.shift();
     state.gasClouds.push({
       x: projectile.x,
       y: world.ground - 56,
