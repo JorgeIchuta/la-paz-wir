@@ -3,6 +3,10 @@ export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacter
     return renderTuning?.actorFootOffsets?.[kind] ?? 0;
   }
 
+  function spriteHeight(kind, fallback) {
+    return renderTuning?.actorSpriteHeights?.[kind] ?? fallback;
+  }
+
   function drawObject(obj) {
     if (obj.hp <= 0) return;
     if (obj.type === "barricade") {
@@ -24,10 +28,10 @@ export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacter
 
   function drawFoodHelper(obj) {
     const offset = footOffset("foodHelper");
-    if (drawCharacterSprite("foodHelper", obj.x, obj.y + 40 + offset, 118, 1, true)) return;
+    const height = spriteHeight("foodHelper", 118);
+    if (drawCharacterSprite("foodHelper", obj.x, obj.y + 40 + offset, height, 1, true)) return;
 
     if (assets.foodHelper.complete && assets.foodHelper.naturalWidth > 0) {
-      const height = 118;
       const width = height * (assets.foodHelper.naturalWidth / assets.foodHelper.naturalHeight);
       ctx.drawImage(assets.foodHelper, obj.x - width / 2, obj.y + 40 + offset - height, width, height);
       return;

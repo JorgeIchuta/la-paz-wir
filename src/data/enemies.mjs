@@ -68,6 +68,24 @@ export const enemyDefinitions = {
       retreatRange: 190,
     },
   },
+  minerScout: {
+    label: "Minero patrullero",
+    baseHp: 4,
+    lateHp: 5,
+    width: 40,
+    height: 64,
+    baseSpeed: 52,
+    speedScale: 18,
+    contactDamage: 10,
+    score: 120,
+    attack: {
+      type: "projectile",
+      projectile: "dynamite",
+      range: 390,
+      cooldown: 2.15,
+      retreatRange: 170,
+    },
+  },
 };
 
 export const waveEnemySets = [

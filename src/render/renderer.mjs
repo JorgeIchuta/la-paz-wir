@@ -25,6 +25,7 @@ export function createRenderer({
     spriteFrames,
     player,
     clamp,
+    renderTuning,
   });
   const worldRenderer = createWorldRenderer({
     ctx,

@@ -95,7 +95,7 @@ export function createEnemiesRuntime({
       if (enemy.type === "blocker") {
         updateBlocker(enemy, dx);
       }
-      if (enemy.type === "miner") {
+      if (enemy.type === "miner" || enemy.type === "minerScout") {
         updateMiner(enemy, dx);
       }
 

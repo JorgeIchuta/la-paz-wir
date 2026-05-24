@@ -14,6 +14,10 @@ export function createActorsRenderer({
     return renderTuning?.actorFootOffsets?.[kind] ?? 0;
   }
 
+  function spriteHeight(kind, fallback) {
+    return renderTuning?.actorSpriteHeights?.[kind] ?? fallback;
+  }
+
   function drawPlayer() {
     const flicker = player.invincible > 0 && Math.floor(player.invincible * 20) % 2 === 0;
     if (flicker) return;
@@ -21,7 +25,7 @@ export function createActorsRenderer({
     const screenX = player.x - world.cameraX;
     const footY = player.y + player.h / 2 + 4 + footOffset("hero");
     const moving = Math.abs(player.vx) > 8 && player.grounded;
-    if (drawCharacterSprite("hero", screenX, footY, 104, player.dir, moving)) {
+    if (drawCharacterSprite("hero", screenX, footY, spriteHeight("hero", 104), player.dir, moving)) {
       if (state.maskPicked) drawEquippedMask(screenX, player.y - 36, player.dir);
       return;
     }
@@ -135,7 +139,7 @@ export function createActorsRenderer({
     const dir = state.enemies.find((enemy) => enemy.policeTarget && enemy.x > ally.x) ? 1 : -1;
     const offset = footOffset("police");
     if (assets.policeAlly.complete && assets.policeAlly.naturalWidth > 0) {
-      const height = 118;
+      const height = spriteHeight("police", 118);
       const width = height * (assets.policeAlly.naturalWidth / assets.policeAlly.naturalHeight);
       ctx.save();
       ctx.translate(ally.x, ally.y + ally.h / 2 + 1 + offset);

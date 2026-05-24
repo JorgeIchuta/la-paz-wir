@@ -48,8 +48,7 @@ const input = {
 const world = createWorldState();
 
 let assets = {
-  streetBackground: loadImage("assets/level-1/background/background-la-paz-teleferico-map-extended-aligned.png"),
-  telefericoBackground: loadImage("assets/backgrounds/la-paz-teleferico-map-extended-aligned.png"),
+  level1Background: loadImage("assets/level-1/background/background-la-paz-teleferico-map-extended-aligned.png"),
   characterSheet: loadImage("assets/sprites/characters-source-green.png"),
   foodHelper: loadImage("assets/sprites/senora-pollera-helper.png"),
   policeAlly: loadImage("assets/sprites/police-ally.png"),
@@ -162,8 +161,7 @@ const playerSystem = createPlayerSystem({
 });
 
 function resolveLevelBackground(background) {
-  if (background === "street") return assets.streetBackground;
-  if (background === "teleferico") return assets.telefericoBackground;
+  if (background === "level1") return assets.level1Background;
   return background;
 }
 
@@ -179,7 +177,6 @@ function applyLevelDefinitions(levelDefinitions) {
   if (!Array.isArray(levelDefinitions) || levelDefinitions.length === 0) return;
   rawLevelDefinitions = levelDefinitions;
   levels = levelDefinitions.map(hydrateLevelDefinition);
-  state.levelIndex = clamp(state.levelIndex, 0, levels.length - 1);
 }
 
 function applyEnemyDefinitions(enemyDefinitions) {
@@ -323,7 +320,7 @@ backgroundRenderer = createBackgroundRenderer({
 
 bindGameInput({ input });
 function currentLevel() {
-  return levels[state.levelIndex];
+  return levels[0];
 }
 
 function buildLevelObjects(level) {

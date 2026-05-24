@@ -32,7 +32,6 @@ export function createWaveSystem({
 
   function updateWaves() {
     if (state.finalStarted || state.wavePause > 0) return;
-    if (state.elapsed < 4) return;
     if (hasFoodHelper()) return;
     if (state.activeWave) {
       const alive = state.enemies.some((enemy) => enemy.waveId === state.activeWave.id);
@@ -62,6 +61,9 @@ export function createWaveSystem({
       return;
     }
 
+    if (state.elapsed < 4) return;
+    if (state.waves.length > 0) return;
+
     if (state.elapsed >= 180) return;
     if (player.x < state.nextWaveX) return;
     const phaseIndex = Math.min(2, Math.floor(state.elapsed / 60));
@@ -83,7 +85,8 @@ export function createWaveSystem({
   }
 
   function nextReadyEncounter() {
-    return state.waves.find((wave) => !wave.started && !wave.cleared && player.x >= wave.triggerX);
+    const triggerLead = 320;
+    return state.waves.find((wave) => !wave.started && !wave.cleared && player.x >= wave.triggerX - (wave.triggerLead ?? triggerLead));
   }
 
   function hasMoreGroups(wave) {
@@ -111,7 +114,7 @@ export function createWaveSystem({
     if (group.length === 0) return;
     state.waveGroup += 1;
     group.forEach((type, index) => {
-      const offsets = [-180, 105, 245, 360];
+      const offsets = wave.spawnOffsets ?? (Array.isArray(wave.groups) ? [220, 360, 500, 640] : [-180, 105, 245, 360]);
       spawnWaveEnemy(type, player.x + offsets[index], wave.id);
     });
   }

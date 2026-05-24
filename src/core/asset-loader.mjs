@@ -6,8 +6,7 @@ export function loadImage(src) {
 
 export function createAssetsFromManifest(manifest) {
   return {
-    streetBackground: loadImage(manifest.backgrounds.street),
-    telefericoBackground: loadImage(manifest.backgrounds.teleferico),
+    level1Background: loadImage(manifest.backgrounds.level1),
     characterSheet: loadImage(manifest.sprites.characterSheet),
     foodHelper: loadImage(manifest.sprites.foodHelper),
     policeAlly: loadImage(manifest.sprites.policeAlly),

@@ -1,7 +1,6 @@
 export const assetManifest = {
   backgrounds: {
-    street: "assets/level-1/background/background-la-paz-teleferico-map-extended-aligned.png",
-    teleferico: "assets/backgrounds/la-paz-teleferico-map-extended-aligned.png",
+    level1: "assets/level-1/background/background-la-paz-teleferico-map-extended-aligned.png",
   },
   sprites: {
     characterSheet: "assets/sprites/characters-source-green.png",

@@ -52,7 +52,6 @@ export function createInitialState() {
     hitArcs: [],
     particles: [],
     cableOffset: 0,
-    levelIndex: 0,
   };
 }
 
