@@ -1,4 +1,8 @@
-export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacterSprite }) {
+export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacterSprite, renderTuning }) {
+  function footOffset(kind) {
+    return renderTuning?.actorFootOffsets?.[kind] ?? 0;
+  }
+
   function drawObject(obj) {
     if (obj.hp <= 0) return;
     if (obj.type === "barricade") {
@@ -19,17 +23,18 @@ export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacter
   }
 
   function drawFoodHelper(obj) {
-    if (drawCharacterSprite("foodHelper", obj.x, obj.y + 40, 118, 1, true)) return;
+    const offset = footOffset("foodHelper");
+    if (drawCharacterSprite("foodHelper", obj.x, obj.y + 40 + offset, 118, 1, true)) return;
 
     if (assets.foodHelper.complete && assets.foodHelper.naturalWidth > 0) {
       const height = 118;
       const width = height * (assets.foodHelper.naturalWidth / assets.foodHelper.naturalHeight);
-      ctx.drawImage(assets.foodHelper, obj.x - width / 2, obj.y + 40 - height, width, height);
+      ctx.drawImage(assets.foodHelper, obj.x - width / 2, obj.y + 40 + offset - height, width, height);
       return;
     }
 
     const x = obj.x;
-    const footY = obj.y + 39;
+    const footY = obj.y + 39 + offset;
     px(x - 31, footY - 4, 67, 9, "rgba(0, 0, 0, 0.38)");
     px(x - 24, footY - 105, 48, 16, "#141414");
     px(x - 18, footY - 111, 36, 15, "#141414");

@@ -12,6 +12,7 @@ import { assetManifest } from "../data/assets.mjs";
 import { enemyDefinitions } from "../data/enemies.mjs";
 import { levelDefinitions } from "../data/levels.mjs";
 import { playerTuning } from "../data/player-tuning.mjs";
+import { renderTuning } from "../data/render-tuning.mjs";
 import { weaponDefinitions } from "../data/weapons.mjs";
 import { createAssetsFromManifest } from "../core/asset-loader.mjs";
 import { createCombatSystem } from "../gameplay/combat.mjs";
@@ -141,6 +142,7 @@ const renderer = createRenderer({
   assets,
   spriteFrames,
   clamp,
+  renderTuning,
   getBackgroundRenderer: () => backgroundRenderer,
   getEffectsRenderer: () => effectsRenderer,
   getHudRenderer: () => hudRenderer,

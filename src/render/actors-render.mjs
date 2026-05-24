@@ -8,13 +8,18 @@ export function createActorsRenderer({
   drawCharacterSprite,
   spriteKindForEnemy,
   spriteHeightForEnemy,
+  renderTuning,
 }) {
+  function footOffset(kind) {
+    return renderTuning?.actorFootOffsets?.[kind] ?? 0;
+  }
+
   function drawPlayer() {
     const flicker = player.invincible > 0 && Math.floor(player.invincible * 20) % 2 === 0;
     if (flicker) return;
 
     const screenX = player.x - world.cameraX;
-    const footY = player.y + player.h / 2 + 4;
+    const footY = player.y + player.h / 2 + 4 + footOffset("hero");
     const moving = Math.abs(player.vx) > 8 && player.grounded;
     if (drawCharacterSprite("hero", screenX, footY, 104, player.dir, moving)) {
       if (state.maskPicked) drawEquippedMask(screenX, player.y - 36, player.dir);
@@ -22,7 +27,7 @@ export function createActorsRenderer({
     }
 
     ctx.save();
-    ctx.translate(screenX, player.y);
+    ctx.translate(screenX, player.y + footOffset("hero"));
     ctx.scale(player.dir, 1);
     px(-18, 24, 38, 8, "rgba(0, 0, 0, 0.38)");
     px(-17, -46, 34, 10, "#151515");
@@ -69,13 +74,15 @@ export function createActorsRenderer({
   function drawEnemy(enemy) {
     const dir = player.x > enemy.x ? 1 : -1;
     const moving = Math.abs(enemy.vx) > 6;
-    if (drawCharacterSprite(spriteKindForEnemy(enemy), enemy.x, enemy.y + enemy.h / 2 + 1, spriteHeightForEnemy(enemy), dir, moving)) {
+    const kind = spriteKindForEnemy(enemy);
+    const offset = footOffset(kind);
+    if (drawCharacterSprite(kind, enemy.x, enemy.y + enemy.h / 2 + 1 + offset, spriteHeightForEnemy(enemy), dir, moving)) {
       drawEnemyHealthWorld(enemy);
       return;
     }
 
     ctx.save();
-    ctx.translate(enemy.x, enemy.y);
+    ctx.translate(enemy.x, enemy.y + offset);
     ctx.scale(dir, 1);
     const bodyColor = {
       blocker: "#b74335",
@@ -126,18 +133,19 @@ export function createActorsRenderer({
 
   function drawAlly(ally) {
     const dir = state.enemies.find((enemy) => enemy.policeTarget && enemy.x > ally.x) ? 1 : -1;
+    const offset = footOffset("police");
     if (assets.policeAlly.complete && assets.policeAlly.naturalWidth > 0) {
       const height = 118;
       const width = height * (assets.policeAlly.naturalWidth / assets.policeAlly.naturalHeight);
       ctx.save();
-      ctx.translate(ally.x, ally.y + ally.h / 2 + 1);
+      ctx.translate(ally.x, ally.y + ally.h / 2 + 1 + offset);
       ctx.scale(dir, 1);
       ctx.drawImage(assets.policeAlly, -width / 2, -height, width, height);
       ctx.restore();
       return;
     }
     ctx.save();
-    ctx.translate(ally.x, ally.y);
+    ctx.translate(ally.x, ally.y + offset);
     ctx.scale(dir, 1);
     px(-17, 24, 38, 8, "rgba(0, 0, 0, 0.34)");
     px(-14, -39, 28, 13, "#151515");
@@ -157,9 +165,11 @@ export function createActorsRenderer({
 
   function drawEnemyHealthWorld(enemy) {
     if (enemy.type !== "miner" && enemy.hp <= 1) return;
+    const kind = spriteKindForEnemy(enemy);
+    const offset = footOffset(kind);
     const width = enemy.type === "miner" ? 72 : 36;
     const maxHp = enemy.type === "miner" ? 12 : enemy.type === "mallku" ? 3 : 2;
-    const y = enemy.y - spriteHeightForEnemy(enemy) + 8;
+    const y = enemy.y + offset - spriteHeightForEnemy(enemy) + 8;
     px(enemy.x - width / 2, y, width, 6, "#181818");
     px(enemy.x - width / 2, y, width * Math.max(0, enemy.hp / maxHp), 6, enemy.type === "miner" ? "#d94f35" : "#f1c84f");
   }
