@@ -10,17 +10,16 @@
   <main class="shell">
     <section class="game-panel" aria-label="Juego La Paz Wir">
       <div class="hud">
-        <div>
+        <div class="hud-score">
           <span class="hud-label">Puntos</span>
           <strong id="score">0</strong>
         </div>
-        <div>
-          <span class="hud-label">Energia</span>
-          <strong id="energy">100</strong>
-        </div>
-        <div>
-          <span class="hud-label">Negocios</span>
-          <strong id="shops">0</strong>
+        <div class="hud-life">
+          <span class="hud-label">Vida</span>
+          <div class="life-meter" role="meter" aria-label="Vida del jugador" aria-valuemin="0" aria-valuemax="300" aria-valuenow="300">
+            <div id="lifeBar" class="life-meter-fill"></div>
+          </div>
+          <strong id="lifeValue">300/300</strong>
         </div>
       </div>
 

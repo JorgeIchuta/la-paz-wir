@@ -29,6 +29,7 @@ export function createInitialState() {
     lastTime: 0,
     score: 0,
     energy: 100,
+    maxEnergy: 100,
     saved: 0,
     elapsed: 0,
     waveIndex: 0,
@@ -67,7 +68,8 @@ export function resetRuntimeState({
   state.running = true;
   state.lastTime = performance.now();
   state.score = 0;
-  state.energy = tuning?.startingEnergy ?? 100;
+  state.maxEnergy = tuning?.maxEnergy ?? tuning?.startingEnergy ?? 100;
+  state.energy = Math.min(tuning?.startingEnergy ?? state.maxEnergy, state.maxEnergy);
   state.saved = 0;
   state.elapsed = 0;
   state.waveIndex = 0;

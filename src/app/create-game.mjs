@@ -35,7 +35,7 @@ import {
 } from "./game-state.mjs";
 
 export async function createGame(browser) {
-const { canvas, ctx, scoreEl, energyEl, shopsEl, overlay, startButton } = browser;
+const { canvas, ctx, scoreEl, lifeBarEl, lifeValueEl, overlay, startButton } = browser;
 let gameUi = null;
 
 const input = {
@@ -223,7 +223,7 @@ projectilePool = new ObjectPool(
 );
 projectilePool.syncFrom(state.projectiles);
 
-gameUi = createGameUi({ scoreEl, energyEl, shopsEl, overlay, startButton });
+gameUi = createGameUi({ scoreEl, lifeBarEl, lifeValueEl, overlay, startButton });
 
 projectileSystem = createProjectileSystem({
   state,
@@ -380,7 +380,7 @@ function update(dt) {
   updateHud();
 
   if (state.energy <= 0) {
-    endGame("Te quedaste sin energia");
+    endGame("Te quedaste sin vida");
   }
 
   if (player.x > world.width - 170 && state.finalStarted && !state.enemies.some((enemy) => enemy.type === "miner")) {
@@ -507,26 +507,29 @@ function updateHud() {
     return;
   }
   scoreEl.textContent = Math.floor(state.score);
-  energyEl.textContent = Math.max(0, Math.floor(state.energy));
-  shopsEl.textContent = state.saved;
+  const currentLife = Math.max(0, Math.floor(state.energy));
+  const maxLife = Math.max(1, Math.floor(state.maxEnergy || 100));
+  const lifePct = Math.max(0, Math.min(1, currentLife / maxLife));
+  lifeValueEl.textContent = `${currentLife}/${maxLife}`;
+  lifeBarEl.style.width = `${Math.round(lifePct * 100)}%`;
+  lifeBarEl.style.backgroundColor = lifePct > 0.6 ? "#49c65a" : lifePct > 0.3 ? "#f1c84f" : lifePct > 0.15 ? "#e8782e" : "#d94f35";
+  lifeBarEl.parentElement.setAttribute("aria-valuemax", String(maxLife));
+  lifeBarEl.parentElement.setAttribute("aria-valuenow", String(currentLife));
 }
 
 function endGame(message) {
   state.running = false;
-  const totalShops = state.objects.filter((obj) => obj.type === "shop").length;
   if (gameUi) {
     gameUi.showEndScreen({
       title: message,
       mapName: currentLevel().name,
       score: state.score,
-      saved: state.saved,
-      totalShops,
     });
     return;
   }
   overlay.classList.remove("is-hidden");
   overlay.querySelector("h1").textContent = message;
-  overlay.querySelector("p").textContent = `Mapa: ${currentLevel().name}. Puntos: ${Math.floor(state.score)}. Negocios protegidos: ${state.saved}/${totalShops}.`;
+  overlay.querySelector("p").textContent = `Mapa: ${currentLevel().name}. Puntos: ${Math.floor(state.score)}.`;
   startButton.textContent = "Reintentar";
 }
 
