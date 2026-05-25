@@ -102,7 +102,7 @@ export function createWaveSystem({
     if (state.activeWave || state.enemies.some((enemy) => enemy.waveId)) return;
     state.lastSupportMinute = minute;
     spawnFoodHelper();
-    showMessage("La seÃ±ora te trajo comida. Vamos vamos tu puedes.");
+    showMessage("La señora te trajo comida. Vamos vamos tu puedes.");
   }
 
   function hasFoodHelper() {

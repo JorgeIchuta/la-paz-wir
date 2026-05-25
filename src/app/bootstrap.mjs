@@ -1,7 +1,11 @@
 export function bootstrapBrowserGame() {
   const canvas = document.querySelector("#game");
+  const gamePanel = document.querySelector(".game-panel");
   if (!canvas) {
     throw new Error("Game canvas #game was not found.");
+  }
+  if (!gamePanel) {
+    throw new Error("Game panel .game-panel was not found.");
   }
 
   const ctx = canvas.getContext("2d");
@@ -20,5 +24,5 @@ export function bootstrapBrowserGame() {
     if (!element) throw new Error(`Required game UI element ${name} was not found.`);
   });
 
-  return { canvas, ctx, scoreEl, energyEl, shopsEl, overlay, startButton };
+  return { canvas, ctx, gamePanel, scoreEl, energyEl, shopsEl, overlay, startButton };
 }

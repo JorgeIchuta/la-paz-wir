@@ -51,6 +51,12 @@ button {
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
 }
 
+.game-panel:not(.is-playing) canvas,
+.game-panel:not(.is-playing) .hud,
+.game-panel:not(.is-playing) .controls {
+  visibility: hidden;
+}
+
 .hud {
   position: absolute;
   z-index: 4;
@@ -104,7 +110,9 @@ canvas {
   gap: 16px;
   padding: 32px;
   text-align: center;
-  background: rgba(12, 13, 12, 0.82);
+  background:
+    linear-gradient(rgba(12, 13, 12, 0.22), rgba(12, 13, 12, 0.78)),
+    url("assets/level-1/background-incio/zone-01-senkata-disturbios-commercial-gate-v1.png") center / cover no-repeat;
 }
 
 .overlay.is-hidden {
