@@ -31,11 +31,11 @@ export const levelDefinitions = [
     ],
     encounters: [
       {
-        id: "first-miner-patrol",
-        triggerX: 420,
+        id: "looter-pressure",
+        triggerX: 1600,
         gate: true,
-        gateOffset: 760,
-        groups: [["minerScout"]],
+        gateOffset: 780,
+        groups: [["looter"], ["blocker", "looter"]],
       },
       {
         id: "blocker-backup",

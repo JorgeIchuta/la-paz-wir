@@ -6,6 +6,7 @@ export const playerTuning = {
   maxSpeed: 225,
   jumpVelocity: -555,
   gravity: 1280,
-  startingEnergy: 100,
+  maxEnergy: 260,
+  startingEnergy: 260,
   invincibleSeconds: 0.7,
 };
