@@ -1,4 +1,8 @@
-export function createEffectsRenderer({ ctx, state, world, px }) {
+export function createEffectsRenderer({ ctx, state, world, px, renderTuning }) {
+  function effectYOffset(kind) {
+    return renderTuning?.effectOffsets?.[kind]?.y ?? 0;
+  }
+
   function drawEffects() {
     ctx.save();
     ctx.translate(-world.cameraX, 0);
@@ -6,7 +10,7 @@ export function createEffectsRenderer({ ctx, state, world, px }) {
       const alpha = arc.life * 6;
       if (arc.type === "whip") {
         ctx.save();
-        ctx.translate(arc.x, arc.y);
+        ctx.translate(arc.x, arc.y + effectYOffset("whip"));
         ctx.scale(arc.dir, 1);
         ctx.strokeStyle = `rgba(31, 20, 12, ${alpha})`;
         ctx.lineWidth = 9;

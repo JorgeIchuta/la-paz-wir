@@ -1,7 +1,7 @@
 export const levelDefinitions = [
   {
     id: "street",
-    name: "Calle Pacena",
+    name: "Centro de La Paz",
     background: "level1",
     width: 15000,
     ground: 590,

@@ -299,6 +299,7 @@ effectsRenderer = createEffectsRenderer({
   state,
   world,
   px,
+  renderTuning,
 });
 
 hudRenderer = createHudRenderer({
