@@ -8,6 +8,7 @@ export function createCombatSystem({
   burst,
   weaponConfig,
   playerTuning,
+  enemyConfig,
 }) {
   function maybeAttack() {
     if (!input.attack || player.attackCooldown > 0) return;
@@ -29,7 +30,6 @@ export function createCombatSystem({
       enemy.hp -= weapon.damage;
       enemy.vx = player.dir * weapon.knockback;
       enemy.vy = -120;
-      state.score += 20;
       burst(enemy.x, enemy.y, "#f5c84f");
     });
 
@@ -37,16 +37,22 @@ export function createCombatSystem({
       if (obj.hp <= 0 || obj.type === "shop") return;
       if (!rectsOverlap(hit, objectBox(obj))) return;
       obj.hp -= weapon.damage;
-      state.score += 12;
+      if (obj.hp <= 0) state.score += objectScore(obj);
       burst(obj.x, obj.y, "#d9863a");
     });
 
     state.enemies = state.enemies.filter((enemy) => {
       if (enemy.hp > 0) return true;
-      state.score += 45;
+      state.score += enemyConfig(enemy.type)?.score ?? 5;
       burst(enemy.x, enemy.y, "#7bc878");
       return false;
     });
+  }
+
+  function objectScore(obj) {
+    if (obj.type === "barricade") return 2;
+    if (obj.type === "crate") return 1;
+    return 0;
   }
 
   function hitPlayer(damage, knockback) {

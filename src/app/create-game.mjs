@@ -35,7 +35,17 @@ import {
 } from "./game-state.mjs";
 
 export async function createGame(browser) {
-const { canvas, ctx, scoreEl, lifeBarEl, lifeValueEl, overlay, startButton } = browser;
+const {
+  canvas,
+  ctx,
+  scoreEl,
+  lifeBarEl,
+  lifeValueEl,
+  timeValueEl,
+  attackCooldownBarEl,
+  overlay,
+  startButton,
+} = browser;
 let gameUi = null;
 
 const input = {
@@ -43,6 +53,19 @@ const input = {
   right: false,
   jump: false,
   attack: false,
+};
+
+const encounterLabels = {
+  "first-miner-patrol": "Patrulla minera",
+  "blocker-backup": "Refuerzos",
+  "looter-pressure": "Saqueadores",
+  "barricade-mix": "Barricada",
+  "first-mallku-chicote": "Mallku con chicote",
+  "miner-second-patrol": "Mineros avanzan",
+  "final-street-wave": "Ultima calle",
+  "miner-patrol": "Patrulla final",
+  "mallku-chicote-line": "Linea de mallkus",
+  "boss-approach": "Jefe cerca",
 };
 
 const world = createWorldState();
@@ -223,7 +246,15 @@ projectilePool = new ObjectPool(
 );
 projectilePool.syncFrom(state.projectiles);
 
-gameUi = createGameUi({ scoreEl, lifeBarEl, lifeValueEl, overlay, startButton });
+gameUi = createGameUi({
+  scoreEl,
+  lifeBarEl,
+  lifeValueEl,
+  timeValueEl,
+  attackCooldownBarEl,
+  overlay,
+  startButton,
+});
 
 projectileSystem = createProjectileSystem({
   state,
@@ -247,6 +278,7 @@ combatSystem = createCombatSystem({
   burst,
   weaponConfig: () => weaponDefinitions.whip,
   playerTuning,
+  enemyConfig,
 });
 
 waveSystem = createWaveSystem({
@@ -357,7 +389,6 @@ function resetGame() {
 
 function update(dt) {
   state.elapsed += dt;
-  state.score += dt * 3;
   state.cableOffset += dt * 28;
   state.wavePause = Math.max(0, state.wavePause - dt);
   state.messageTimer = Math.max(0, state.messageTimer - dt);
@@ -504,7 +535,12 @@ function updateCamera() {
 
 function updateHud() {
   if (gameUi) {
-    gameUi.updateHud(state);
+    gameUi.updateHud({
+      ...state,
+      statusText: waveStatusText(),
+      attackCooldown: player.attackCooldown,
+      attackCooldownMax: weaponDefinitions.whip.cooldown,
+    });
     return;
   }
   scoreEl.textContent = Math.floor(state.score);
@@ -549,8 +585,10 @@ function strokePx(x, y, w, h, color) {
   ctx.strokeRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
 }
 function waveStatusText() {
+  if (state.finalStarted) return state.enemies.some((enemy) => enemy.policeTarget) ? "Policia en apoyo" : "Ultimo minero";
+  if (state.maskPicked) return "Mascara equipada";
   if (!state.activeWave) return "";
-  if (state.activeWave.id) return state.activeWave.id.replaceAll("-", " ");
+  if (state.activeWave.id) return encounterLabels[state.activeWave.id] || "Oleada activa";
   if (state.activeWave.phase === 0) return "Min 1: bloqueadores";
   if (state.activeWave.phase === 1) return "Min 2: saqueadores";
   return "Min 3: mallkus";

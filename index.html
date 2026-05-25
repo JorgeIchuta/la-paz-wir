@@ -10,16 +10,31 @@
   <main class="shell">
     <section class="game-panel" aria-label="Juego La Paz Wir">
       <div class="hud">
-        <div class="hud-score">
-          <span class="hud-label">Puntos</span>
-          <strong id="score">0</strong>
-        </div>
-        <div class="hud-life">
-          <span class="hud-label">Vida</span>
-          <div class="life-meter" role="meter" aria-label="Vida del jugador" aria-valuemin="0" aria-valuemax="300" aria-valuenow="300">
-            <div id="lifeBar" class="life-meter-fill"></div>
+        <div class="hud-main">
+          <div class="hud-score">
+            <span class="hud-label">Puntos</span>
+            <strong id="score">0</strong>
           </div>
-          <strong id="lifeValue">300/300</strong>
+          <div class="hud-life">
+            <span class="hud-label">Vida</span>
+            <div class="life-meter" role="meter" aria-label="Vida del jugador" aria-valuemin="0" aria-valuemax="300" aria-valuenow="300">
+              <div id="lifeBar" class="life-meter-fill"></div>
+            </div>
+            <strong id="lifeValue">300/300</strong>
+          </div>
+        </div>
+
+        <div class="hud-subheader">
+          <div class="hud-time">
+            <span class="hud-label">Tiempo</span>
+            <strong id="timeValue">0:00</strong>
+          </div>
+          <div class="hud-cooldown">
+            <span class="hud-label">Chicote</span>
+            <div class="cooldown-meter" role="meter" aria-label="Recarga del chicote" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+              <div id="attackCooldownBar" class="cooldown-meter-fill"></div>
+            </div>
+          </div>
         </div>
       </div>
 

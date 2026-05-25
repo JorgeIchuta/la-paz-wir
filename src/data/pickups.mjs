@@ -3,7 +3,7 @@ export const pickupDefinitions = {
     label: "Comida",
     effect: "heal",
     value: 22,
-    score: 80,
+    score: 3,
     lifetimeSeconds: 18,
   },
   gasMask: {
@@ -11,24 +11,24 @@ export const pickupDefinitions = {
     effect: "gasResistance",
     damageMultiplier: 0.45,
     heal: 10,
-    score: 120,
+    score: 3,
   },
   coin: {
     label: "Moneda",
     effect: "gold",
     value: 1,
-    score: 5,
+    score: 1,
   },
   firstAid: {
     label: "Botiquin",
     effect: "heal",
     value: 40,
-    score: 60,
+    score: 3,
   },
   ammo: {
     label: "Municion",
     effect: "ammo",
     value: 6,
-    score: 20,
+    score: 2,
   },
 };

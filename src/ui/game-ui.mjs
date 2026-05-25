@@ -1,7 +1,25 @@
-export function createGameUi({ scoreEl, lifeBarEl, lifeValueEl, overlay, startButton }) {
-  function updateHud({ score, energy, maxEnergy }) {
+export function createGameUi({
+  scoreEl,
+  lifeBarEl,
+  lifeValueEl,
+  timeValueEl,
+  attackCooldownBarEl,
+  overlay,
+  startButton,
+}) {
+  function updateHud({
+    score,
+    energy,
+    maxEnergy,
+    elapsed,
+    statusText,
+    attackCooldown,
+    attackCooldownMax,
+  }) {
     scoreEl.textContent = Math.floor(score);
     updateLifeHud(energy, maxEnergy);
+    updateTimeHud(elapsed, statusText);
+    updateAttackCooldownHud(attackCooldown, attackCooldownMax);
   }
 
   function updateLifeHud(energy, maxEnergy) {
@@ -20,6 +38,22 @@ export function createGameUi({ scoreEl, lifeBarEl, lifeValueEl, overlay, startBu
     if (pct > 0.3) return blendColor("#e8782e", "#f1c84f", (pct - 0.3) / 0.3);
     if (pct > 0.15) return blendColor("#d94f35", "#e8782e", (pct - 0.15) / 0.15);
     return "#d94f35";
+  }
+
+  function updateTimeHud(elapsed = 0, statusText = "") {
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = String(Math.floor(elapsed % 60)).padStart(2, "0");
+    const timeText = `${minutes}:${seconds}`;
+    timeValueEl.textContent = statusText ? `${timeText} - ${statusText}` : timeText;
+  }
+
+  function updateAttackCooldownHud(attackCooldown = 0, attackCooldownMax = 1) {
+    const max = Math.max(0.001, attackCooldownMax);
+    const pct = Math.max(0, Math.min(1, 1 - attackCooldown / max));
+    const ready = pct >= 1;
+    attackCooldownBarEl.style.width = `${Math.round(pct * 100)}%`;
+    attackCooldownBarEl.style.backgroundColor = ready ? "#f7c84f" : "#9b6b3f";
+    attackCooldownBarEl.parentElement.setAttribute("aria-valuenow", String(Math.round(pct * 100)));
   }
 
   function blendColor(from, to, amount) {
