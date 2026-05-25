@@ -1,4 +1,5 @@
 const AUDIO_STORAGE_KEY = "la-paz-wir-audio-settings";
+const AUDIO_SETTINGS_VERSION = 2;
 
 const audioManifest = {
   music: {
@@ -21,10 +22,11 @@ const audioManifest = {
 };
 
 const defaultSettings = {
+  settingsVersion: AUDIO_SETTINGS_VERSION,
   masterVolume: 0.86,
   musicVolume: 0.24,
   ambienceVolume: 0.16,
-  sfxVolume: 0.72,
+  sfxVolume: 0.15,
   muted: false,
 };
 
@@ -295,9 +297,15 @@ export function createAudioManager({ storage = window.localStorage } = {}) {
 
 function readSettings(storage) {
   try {
+    const storedSettings = JSON.parse(storage.getItem(AUDIO_STORAGE_KEY) || "{}");
+    if (storedSettings.settingsVersion !== AUDIO_SETTINGS_VERSION) {
+      delete storedSettings.sfxVolume;
+    }
+
     return {
       ...defaultSettings,
-      ...JSON.parse(storage.getItem(AUDIO_STORAGE_KEY) || "{}"),
+      ...storedSettings,
+      settingsVersion: AUDIO_SETTINGS_VERSION,
     };
   } catch {
     return { ...defaultSettings };
