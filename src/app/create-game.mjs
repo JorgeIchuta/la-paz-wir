@@ -270,6 +270,7 @@ objectSystem = createObjectSystem({
   showMessage,
   finishFoodBreak,
   burst,
+  playerTuning,
 });
 
 enemiesRuntime = createEnemiesRuntime({
