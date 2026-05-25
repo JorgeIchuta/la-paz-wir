@@ -2,33 +2,7 @@ export function createHudRenderer({
   ctx,
   canvas,
   state,
-  player,
-  clamp,
-  waveStatusText,
 }) {
-  function drawCooldown() {
-    const pct = 1 - player.attackCooldown / 0.52;
-    ctx.fillStyle = "rgba(0, 0, 0, 0.44)";
-    ctx.fillRect(246, 58, 112, 10);
-    ctx.fillStyle = player.attackCooldown <= 0 ? "#f7c84f" : "#9b6b3f";
-    ctx.fillRect(246, 58, 112 * clamp(pct, 0, 1), 10);
-  }
-
-  function drawStatus() {
-    const minutes = Math.floor(state.elapsed / 60);
-    const seconds = String(Math.floor(state.elapsed % 60)).padStart(2, "0");
-    let text = `${minutes}:${seconds}`;
-    if (state.activeWave) text = waveStatusText();
-    if (state.finalStarted) text = state.enemies.some((enemy) => enemy.policeTarget) ? "Policia en apoyo" : "Ultimo minero: gas";
-    if (state.maskPicked && !state.finalStarted) text = "Mascara equipada";
-
-    ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-    ctx.fillRect(30, 58, 150, 20);
-    ctx.fillStyle = state.maskPicked ? "#b8d17a" : "#f3efe6";
-    ctx.font = "12px Arial";
-    ctx.fillText(text, 39, 73);
-  }
-
   function drawMessage() {
     if (state.messageTimer <= 0 || !state.messageText) return;
     ctx.save();
@@ -62,8 +36,6 @@ export function createHudRenderer({
   }
 
   return {
-    drawCooldown,
-    drawStatus,
     drawMessage,
     wrapText,
   };

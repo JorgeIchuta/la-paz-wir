@@ -11,6 +11,7 @@ const loop = createGameLoop({
 });
 
 browser.startButton.addEventListener("click", () => {
+  browser.gamePanel.classList.add("is-playing");
   game.reset();
   loop.start();
 });

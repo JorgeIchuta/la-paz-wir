@@ -153,7 +153,7 @@ export function createEnemiesRuntime({
 
     state.enemies = state.enemies.filter((enemy) => {
       if (enemy.hp > 0) return true;
-      state.score += enemy.type === "miner" ? 260 : 45;
+      state.score += enemyConfig(enemy.type)?.score ?? 5;
       burst(enemy.x, enemy.y, enemy.type === "miner" ? "#f1c84f" : "#7bc878");
       return false;
     });

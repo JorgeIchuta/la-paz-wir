@@ -38,13 +38,12 @@ export function createWaveSystem({
       if (!alive) {
         if (hasMoreGroups(state.activeWave)) {
           spawnWaveGroup(state.activeWave);
-          state.score += 70;
         } else {
           state.activeWave.cleared = true;
           state.activeWave = null;
           state.wavePause = 1.1;
           state.nextWaveX = player.x + 720;
-          state.score += 150;
+          state.score += 5;
           burst(player.x + 36, player.y - 20, "#7bc878");
         }
       }
@@ -102,7 +101,7 @@ export function createWaveSystem({
     if (state.activeWave || state.enemies.some((enemy) => enemy.waveId)) return;
     state.lastSupportMinute = minute;
     spawnFoodHelper();
-    showMessage("La seÃ±ora te trajo comida. Vamos vamos tu puedes.");
+    showMessage("La señora te trajo comida. Vamos vamos tu puedes.");
   }
 
   function hasFoodHelper() {

@@ -8,7 +8,7 @@ export const enemyDefinitions = {
     baseSpeed: 48,
     speedScale: 28,
     contactDamage: 10,
-    score: 45,
+    score: 5,
     attack: {
       type: "projectile",
       projectile: "stone",
@@ -26,7 +26,7 @@ export const enemyDefinitions = {
     baseSpeed: 78,
     speedScale: 36,
     contactDamage: 10,
-    score: 45,
+    score: 6,
     shopDamage: 24,
     shopAttackCooldown: 0.55,
   },
@@ -39,7 +39,7 @@ export const enemyDefinitions = {
     baseSpeed: 98,
     speedScale: 34,
     contactDamage: 16,
-    score: 45,
+    score: 8,
     attack: {
       type: "melee",
       range: 58,
@@ -57,7 +57,7 @@ export const enemyDefinitions = {
     baseSpeed: 46,
     finalBossSpeed: 56,
     contactDamage: 10,
-    score: 260,
+    score: 15,
     attack: {
       type: "projectile",
       projectile: "dynamite",
@@ -77,7 +77,7 @@ export const enemyDefinitions = {
     baseSpeed: 52,
     speedScale: 18,
     contactDamage: 10,
-    score: 120,
+    score: 10,
     attack: {
       type: "projectile",
       projectile: "dynamite",

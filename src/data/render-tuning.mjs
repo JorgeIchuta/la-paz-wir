@@ -12,12 +12,27 @@ export const renderTuning = {
   },
   actorFootOffsets: {
     hero: 25,
-    blocker: 25, //9,
-    looter: 25, //9,
-    mallku: 25, //10,
-    miner: 25, //12,
+    blocker: 25,
+    looter: 25,
+    mallku: 25,
+    miner: 25,
     minerScout: 25,
-    police: 25, //9,
-    foodHelper: 25, //8,
+    police: 25,
+    foodHelper: 25,
+  },
+  objectFootOffsets: {
+    barricade: 30,
+    crate: 30,
+    mask: 0,
+    shop: 0,
+    foodHelper: 50,
+  },
+  objectAnchorOffsets: {
+    foodHelper: 25,
+  },
+  effectOffsets: {
+    whip: {
+      y: 25,
+    },
   },
 };

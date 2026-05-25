@@ -66,8 +66,6 @@ export function createRenderer({
     getEffectsRenderer().drawEffects();
     actors.drawPlayer();
     worldRenderer.drawForeground();
-    getHudRenderer().drawCooldown();
-    getHudRenderer().drawStatus();
     getHudRenderer().drawMessage();
   }
 

@@ -1,6 +1,10 @@
 export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacterSprite, renderTuning }) {
-  function footOffset(kind) {
-    return renderTuning?.actorFootOffsets?.[kind] ?? 0;
+  function objectFootOffset(kind) {
+    return renderTuning?.objectFootOffsets?.[kind] ?? renderTuning?.actorFootOffsets?.[kind] ?? 0;
+  }
+
+  function objectAnchorOffset(kind) {
+    return renderTuning?.objectAnchorOffsets?.[kind] ?? 0;
   }
 
   function spriteHeight(kind, fallback) {
@@ -10,35 +14,38 @@ export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacter
   function drawObject(obj) {
     if (obj.hp <= 0) return;
     if (obj.type === "barricade") {
-      px(obj.x - obj.w / 2 - 4, obj.y - obj.h / 2 + 4, obj.w + 8, obj.h, "#191919");
-      px(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.w, obj.h, "#513729");
-      px(obj.x - obj.w / 2 + 7, obj.y - 12, obj.w - 14, 8, "#d95d37");
-      px(obj.x - obj.w / 2 + 12, obj.y + 6, obj.w - 24, 7, "#f1c451");
-      px(obj.x - obj.w / 2 + 5, obj.y + 17, 15, 8, "#7f5030");
-      strokePx(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.w, obj.h, "#221812");
+      const y = obj.y + objectFootOffset("barricade");
+      px(obj.x - obj.w / 2 - 4, y - obj.h / 2 + 4, obj.w + 8, obj.h, "#191919");
+      px(obj.x - obj.w / 2, y - obj.h / 2, obj.w, obj.h, "#513729");
+      px(obj.x - obj.w / 2 + 7, y - 12, obj.w - 14, 8, "#d95d37");
+      px(obj.x - obj.w / 2 + 12, y + 6, obj.w - 24, 7, "#f1c451");
+      px(obj.x - obj.w / 2 + 5, y + 17, 15, 8, "#7f5030");
+      strokePx(obj.x - obj.w / 2, y - obj.h / 2, obj.w, obj.h, "#221812");
     }
     if (obj.type === "crate") {
-      px(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.w, obj.h, "#2b1b12");
-      px(obj.x - obj.w / 2 + 3, obj.y - obj.h / 2 + 3, obj.w - 6, obj.h - 6, "#80512c");
-      strokePx(obj.x - obj.w / 2 + 7, obj.y - obj.h / 2 + 7, obj.w - 14, obj.h - 14, "#3c2418");
+      const y = obj.y + objectFootOffset("crate");
+      px(obj.x - obj.w / 2, y - obj.h / 2, obj.w, obj.h, "#2b1b12");
+      px(obj.x - obj.w / 2 + 3, y - obj.h / 2 + 3, obj.w - 6, obj.h - 6, "#80512c");
+      strokePx(obj.x - obj.w / 2 + 7, y - obj.h / 2 + 7, obj.w - 14, obj.h - 14, "#3c2418");
     }
-    if (obj.type === "mask") drawGasMask(obj.x, obj.y);
+    if (obj.type === "mask") drawGasMask(obj.x, obj.y + objectFootOffset("mask"));
     if (obj.type === "food-helper") drawFoodHelper(obj);
   }
 
   function drawFoodHelper(obj) {
-    const offset = footOffset("foodHelper");
+    const offset = objectFootOffset("foodHelper");
+    const anchor = objectAnchorOffset("foodHelper");
     const height = spriteHeight("foodHelper", 118);
-    if (drawCharacterSprite("foodHelper", obj.x, obj.y + 40 + offset, height, 1, true)) return;
+    const footY = obj.y + anchor + offset;
+    if (drawCharacterSprite("foodHelper", obj.x, footY, height, 1, true)) return;
 
     if (assets.foodHelper.complete && assets.foodHelper.naturalWidth > 0) {
       const width = height * (assets.foodHelper.naturalWidth / assets.foodHelper.naturalHeight);
-      ctx.drawImage(assets.foodHelper, obj.x - width / 2, obj.y + 40 + offset - height, width, height);
+      ctx.drawImage(assets.foodHelper, obj.x - width / 2, footY - height, width, height);
       return;
     }
 
     const x = obj.x;
-    const footY = obj.y + 39 + offset;
     px(x - 31, footY - 4, 67, 9, "rgba(0, 0, 0, 0.38)");
     px(x - 24, footY - 105, 48, 16, "#141414");
     px(x - 18, footY - 111, 36, 15, "#141414");

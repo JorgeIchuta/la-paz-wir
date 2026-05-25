@@ -1,7 +1,11 @@
 export function bootstrapBrowserGame() {
   const canvas = document.querySelector("#game");
+  const gamePanel = document.querySelector(".game-panel");
   if (!canvas) {
     throw new Error("Game canvas #game was not found.");
+  }
+  if (!gamePanel) {
+    throw new Error("Game panel .game-panel was not found.");
   }
 
   const ctx = canvas.getContext("2d");
@@ -10,15 +14,17 @@ export function bootstrapBrowserGame() {
   }
 
   const scoreEl = document.querySelector("#score");
-  const energyEl = document.querySelector("#energy");
-  const shopsEl = document.querySelector("#shops");
+  const lifeBarEl = document.querySelector("#lifeBar");
+  const lifeValueEl = document.querySelector("#lifeValue");
+  const timeValueEl = document.querySelector("#timeValue");
+  const attackCooldownBarEl = document.querySelector("#attackCooldownBar");
   const overlay = document.querySelector("#overlay");
   const startButton = document.querySelector("#startButton");
 
-  const required = { scoreEl, energyEl, shopsEl, overlay, startButton };
+  const required = { scoreEl, lifeBarEl, lifeValueEl, timeValueEl, attackCooldownBarEl, overlay, startButton };
   Object.entries(required).forEach(([name, element]) => {
     if (!element) throw new Error(`Required game UI element ${name} was not found.`);
   });
 
-  return { canvas, ctx, scoreEl, energyEl, shopsEl, overlay, startButton };
+  return { canvas, ctx, gamePanel, scoreEl, lifeBarEl, lifeValueEl, timeValueEl, attackCooldownBarEl, overlay, startButton };
 }

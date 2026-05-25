@@ -41,7 +41,7 @@ export function createObjectSystem({
         if (rectsOverlap(playerBox(), objectBox(obj))) {
           obj.hp = 0;
           state.energy = maxEnergy;
-          state.score += 80;
+          state.score += 3;
           showMessage("Vida curada. Viene una nueva oleada. Vamos vamos tu puedes.", 5.4);
           finishFoodBreak(obj.waveId);
           burst(obj.x, obj.y - 20, "#f1c84f");
@@ -59,7 +59,7 @@ export function createObjectSystem({
         obj.hp = 0;
         state.maskPicked = true;
         state.energy = Math.min(maxEnergy, state.energy + 10);
-        state.score += 120;
+        state.score += 3;
         burst(obj.x, obj.y, "#87b667");
         return;
       }
@@ -69,7 +69,7 @@ export function createObjectSystem({
         obj.saved = true;
         state.saved += 1;
         state.energy = Math.min(maxEnergy, state.energy + 12);
-        state.score += 100;
+        state.score += 4;
         burst(obj.x, obj.y - 20, "#7bc878");
       }
     });
