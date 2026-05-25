@@ -1,4 +1,4 @@
-export function createSpriteRenderer({ ctx, assets, spriteFrames, player, clamp }) {
+export function createSpriteRenderer({ ctx, assets, spriteFrames, player, clamp, renderTuning }) {
   function drawCharacterSprite(kind, x, footY, height, dir) {
     const attackSheet = assets.attackSheets && assets.attackSheets[kind];
     if (kind === "hero" && player.attackTimer > 0 && attackSheet && attackSheet.complete && attackSheet.naturalWidth > 0) {
@@ -39,16 +39,18 @@ export function createSpriteRenderer({ ctx, assets, spriteFrames, player, clamp 
   }
 
   function spriteKindForEnemy(enemy) {
-    if (enemy.type === "miner") return "miner";
+    if (enemy.type === "miner" || enemy.type === "minerScout") return "miner";
     if (enemy.type === "mallku") return "mallku";
     if (enemy.type === "looter") return "looter";
     return "blocker";
   }
 
   function spriteHeightForEnemy(enemy) {
-    if (enemy.type === "miner") return 138;
-    if (enemy.type === "mallku") return 112;
-    return 92;
+    if (enemy.type === "miner") return renderTuning?.actorSpriteHeights?.miner ?? 138;
+    if (enemy.type === "minerScout") return renderTuning?.actorSpriteHeights?.minerScout ?? 120;
+    if (enemy.type === "mallku") return renderTuning?.actorSpriteHeights?.mallku ?? 112;
+    if (enemy.type === "looter") return renderTuning?.actorSpriteHeights?.looter ?? 92;
+    return renderTuning?.actorSpriteHeights?.blocker ?? 92;
   }
 
   return {

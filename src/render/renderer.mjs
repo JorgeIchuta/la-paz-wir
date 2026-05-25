@@ -13,6 +13,7 @@ export function createRenderer({
   assets,
   spriteFrames,
   clamp,
+  renderTuning,
   getBackgroundRenderer,
   getEffectsRenderer,
   getHudRenderer,
@@ -24,6 +25,7 @@ export function createRenderer({
     spriteFrames,
     player,
     clamp,
+    renderTuning,
   });
   const worldRenderer = createWorldRenderer({
     ctx,
@@ -36,6 +38,7 @@ export function createRenderer({
     assets,
     ...drawApi,
     drawCharacterSprite: sprites.drawCharacterSprite,
+    renderTuning,
   });
   const projectiles = createProjectilesRenderer({
     ctx,
@@ -51,6 +54,7 @@ export function createRenderer({
     drawCharacterSprite: sprites.drawCharacterSprite,
     spriteKindForEnemy: sprites.spriteKindForEnemy,
     spriteHeightForEnemy: sprites.spriteHeightForEnemy,
+    renderTuning,
   });
 
   function draw() {

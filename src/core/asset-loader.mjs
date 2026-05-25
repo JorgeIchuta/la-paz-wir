@@ -6,9 +6,7 @@ export function loadImage(src) {
 
 export function createAssetsFromManifest(manifest) {
   return {
-    streetBackground: loadImage(manifest.backgrounds.street),
-    telefericoBackground: loadImage(manifest.backgrounds.teleferico),
-    pacenaKiosk: loadImage(manifest.sprites.pacenaKiosk),
+    level1Background: loadImage(manifest.backgrounds.level1),
     characterSheet: loadImage(manifest.sprites.characterSheet),
     foodHelper: loadImage(manifest.sprites.foodHelper),
     policeAlly: loadImage(manifest.sprites.policeAlly),
@@ -26,4 +24,3 @@ export function createAssetsFromManifest(manifest) {
     characterCanvas: null,
   };
 }
-

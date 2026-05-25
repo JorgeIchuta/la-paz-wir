@@ -11,6 +11,9 @@ import { ObjectPool } from "../core/object-pool.mjs";
 import { assetManifest } from "../data/assets.mjs";
 import { enemyDefinitions } from "../data/enemies.mjs";
 import { levelDefinitions } from "../data/levels.mjs";
+import { playerTuning } from "../data/player-tuning.mjs";
+import { renderTuning } from "../data/render-tuning.mjs";
+import { weaponDefinitions } from "../data/weapons.mjs";
 import { createAssetsFromManifest } from "../core/asset-loader.mjs";
 import { createCombatSystem } from "../gameplay/combat.mjs";
 import { createEffectsSystem } from "../gameplay/effects.mjs";
@@ -45,9 +48,7 @@ const input = {
 const world = createWorldState();
 
 let assets = {
-  streetBackground: loadImage("assets/backgrounds/la-paz-playable-map-long.png"),
-  telefericoBackground: loadImage("assets/backgrounds/la-paz-teleferico-map-extended-aligned.png"),
-  pacenaKiosk: loadImage("assets/sprites/kiosco-paceno-game.png"),
+  level1Background: loadImage("assets/level-1/background/background-la-paz-teleferico-map-extended-aligned.png"),
   characterSheet: loadImage("assets/sprites/characters-source-green.png"),
   foodHelper: loadImage("assets/sprites/senora-pollera-helper.png"),
   policeAlly: loadImage("assets/sprites/police-ally.png"),
@@ -140,6 +141,7 @@ const renderer = createRenderer({
   assets,
   spriteFrames,
   clamp,
+  renderTuning,
   getBackgroundRenderer: () => backgroundRenderer,
   getEffectsRenderer: () => effectsRenderer,
   getHudRenderer: () => hudRenderer,
@@ -155,11 +157,11 @@ const playerSystem = createPlayerSystem({
   playerBox,
   objectBox,
   currentGateX,
+  tuning: playerTuning,
 });
 
 function resolveLevelBackground(background) {
-  if (background === "street") return assets.streetBackground;
-  if (background === "teleferico") return assets.telefericoBackground;
+  if (background === "level1") return assets.level1Background;
   return background;
 }
 
@@ -175,7 +177,6 @@ function applyLevelDefinitions(levelDefinitions) {
   if (!Array.isArray(levelDefinitions) || levelDefinitions.length === 0) return;
   rawLevelDefinitions = levelDefinitions;
   levels = levelDefinitions.map(hydrateLevelDefinition);
-  state.levelIndex = clamp(state.levelIndex, 0, levels.length - 1);
 }
 
 function applyEnemyDefinitions(enemyDefinitions) {
@@ -244,6 +245,8 @@ combatSystem = createCombatSystem({
   enemyBox,
   objectBox,
   burst,
+  weaponConfig: () => weaponDefinitions.whip,
+  playerTuning,
 });
 
 waveSystem = createWaveSystem({
@@ -282,6 +285,7 @@ enemiesRuntime = createEnemiesRuntime({
   throwProjectile,
   hitPlayer,
   burst,
+  currentLevel,
 });
 
 effectsSystem = createEffectsSystem({
@@ -316,7 +320,7 @@ backgroundRenderer = createBackgroundRenderer({
 
 bindGameInput({ input });
 function currentLevel() {
-  return levels[state.levelIndex];
+  return levels[0];
 }
 
 function buildLevelObjects(level) {
@@ -340,6 +344,7 @@ function resetGame() {
     level,
     objects: buildLevelObjects(level),
     waves: makeWaves(level),
+    tuning: playerTuning,
   });
   if (projectilePool) projectilePool.syncFrom(state.projectiles);
   if (particlePool) particlePool.syncFrom(state.particles);
@@ -387,7 +392,11 @@ function maybeAttack() {
 }
 
 function currentGateX() {
-  if (enemiesRuntime) return enemiesRuntime.currentGateX();
+  const waveGateX = waveSystem ? waveSystem.currentGateX() : null;
+  const bossGateX = enemiesRuntime ? enemiesRuntime.currentGateX() : null;
+  if (waveGateX && bossGateX) return Math.min(waveGateX, bossGateX);
+  if (waveGateX) return waveGateX;
+  if (bossGateX) return bossGateX;
   if (state.finalStarted && state.enemies.some((enemy) => enemy.type === "miner")) return world.width - 1880;
   return null;
 }
@@ -536,6 +545,7 @@ function strokePx(x, y, w, h, color) {
 }
 function waveStatusText() {
   if (!state.activeWave) return "";
+  if (state.activeWave.id) return state.activeWave.id.replaceAll("-", " ");
   if (state.activeWave.phase === 0) return "Min 1: bloqueadores";
   if (state.activeWave.phase === 1) return "Min 2: saqueadores";
   return "Min 3: mallkus";
