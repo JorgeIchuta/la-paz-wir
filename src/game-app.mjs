@@ -32,6 +32,8 @@ function bindAudioControls() {
   browser.musicVolumeEl.value = String(Math.round(settings.musicVolume * 100));
   browser.sfxVolumeEl.value = String(Math.round(settings.sfxVolume * 100));
   updateMuteButton(settings.muted);
+  lockRangeKeyboardAdjustment(browser.musicVolumeEl);
+  lockRangeKeyboardAdjustment(browser.sfxVolumeEl);
 
   browser.muteButton.addEventListener("click", () => {
     const nextMuted = !audio.getSettings().muted;
@@ -51,4 +53,12 @@ function bindAudioControls() {
 function updateMuteButton(muted) {
   browser.muteButton.textContent = muted ? "Audio off" : "Audio";
   browser.muteButton.setAttribute("aria-pressed", String(muted));
+}
+
+function lockRangeKeyboardAdjustment(rangeEl) {
+  const blockedKeys = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"]);
+  rangeEl.addEventListener("keydown", (event) => {
+    if (!blockedKeys.has(event.key)) return;
+    event.preventDefault();
+  });
 }

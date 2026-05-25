@@ -16,25 +16,38 @@ function bindHold(documentRef, input, buttonId, key) {
   const button = documentRef.querySelector(buttonId);
   if (!button) return () => {};
 
+  button.setAttribute("draggable", "false");
+
   const on = (event) => {
     event.preventDefault();
+    button.setPointerCapture?.(event.pointerId);
     input[key] = true;
   };
   const off = (event) => {
     event.preventDefault();
+    button.releasePointerCapture?.(event.pointerId);
     input[key] = false;
   };
+  const blockDefault = (event) => {
+    event.preventDefault();
+  };
 
-  button.addEventListener("pointerdown", on);
-  button.addEventListener("pointerup", off);
-  button.addEventListener("pointercancel", off);
-  button.addEventListener("pointerleave", off);
+  button.addEventListener("pointerdown", on, { passive: false });
+  button.addEventListener("pointerup", off, { passive: false });
+  button.addEventListener("pointercancel", off, { passive: false });
+  button.addEventListener("pointerleave", off, { passive: false });
+  button.addEventListener("contextmenu", blockDefault);
+  button.addEventListener("selectstart", blockDefault);
+  button.addEventListener("dragstart", blockDefault);
 
   return () => {
     button.removeEventListener("pointerdown", on);
     button.removeEventListener("pointerup", off);
     button.removeEventListener("pointercancel", off);
     button.removeEventListener("pointerleave", off);
+    button.removeEventListener("contextmenu", blockDefault);
+    button.removeEventListener("selectstart", blockDefault);
+    button.removeEventListener("dragstart", blockDefault);
   };
 }
 
@@ -63,4 +76,3 @@ export function bindGameInput({ input, documentRef = document, windowRef = windo
     windowRef.removeEventListener("keyup", onKeyUp);
   };
 }
-
