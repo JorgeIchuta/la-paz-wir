@@ -17,6 +17,10 @@ const types = {
   ".js": "text/javascript; charset=utf-8",
   ".mjs": "text/javascript; charset=utf-8",
   ".png": "image/png",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".ogg": "audio/ogg",
+  ".webm": "audio/webm",
 };
 
 function createServer() {
@@ -37,7 +41,12 @@ function createServer() {
       return;
     }
 
-    response.writeHead(200, { "Content-Type": types[path.extname(filePath)] || "application/octet-stream" });
+    const extension = path.extname(filePath);
+    const headers = { "Content-Type": types[extension] || "application/octet-stream" };
+    if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+      headers["Cache-Control"] = "public, max-age=3600";
+    }
+    response.writeHead(200, headers);
     response.end(data);
   });
   });

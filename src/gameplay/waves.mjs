@@ -8,6 +8,7 @@ export function createWaveSystem({
   showMessage,
   enemyConfig,
   enemySpeed,
+  audio,
 }) {
   function makeWaves(level) {
     if (!Array.isArray(level?.encounters)) return [];
@@ -112,6 +113,7 @@ export function createWaveSystem({
     const group = nextSpawnGroup(wave);
     if (group.length === 0) return;
     state.waveGroup += 1;
+    audio?.playSfx("waveStart", { volume: 0.5 });
     group.forEach((type, index) => {
       const offsets = wave.spawnOffsets ?? (Array.isArray(wave.groups) ? [220, 360, 500, 640] : [-180, 105, 245, 360]);
       spawnWaveEnemy(type, player.x + offsets[index], wave.id);

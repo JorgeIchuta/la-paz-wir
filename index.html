@@ -36,6 +36,18 @@
             </div>
           </div>
         </div>
+
+        <div class="hud-audio" aria-label="Audio">
+          <button id="muteButton" type="button" class="audio-mute" aria-pressed="false">Audio</button>
+          <label class="audio-slider">
+            <span class="hud-label">Musica</span>
+            <input id="musicVolume" type="range" min="0" max="100" value="24">
+          </label>
+          <label class="audio-slider">
+            <span class="hud-label">SFX</span>
+            <input id="sfxVolume" type="range" min="0" max="100" value="72">
+          </label>
+        </div>
       </div>
 
       <canvas id="game" width="390" height="690"></canvas>

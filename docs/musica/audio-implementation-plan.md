@@ -236,6 +236,19 @@ Acciones:
 
 ## Formatos Recomendados
 
+## Peso Recomendado De Archivos
+
+Regla practica para mantener el juego ligero:
+
+- Musica de fondo: idealmente `1 MB` a `5 MB` por pista. Evitar pasar de `8 MB` salvo que sea una pista muy importante.
+- Ambiente en loop: idealmente `500 KB` a `3 MB`.
+- SFX cortos: idealmente `20 KB` a `300 KB` por sonido.
+- SFX largos, victoria o derrota: idealmente `100 KB` a `800 KB`.
+
+Si el juego va a correr en navegador, conviene priorizar carga rapida. Es mejor tener loops cortos, limpios y bien editados que canciones largas y pesadas.
+
+Para musica y ambiente, usar compresion. Para SFX, usar archivos cortos y recortados sin silencio al inicio ni al final.
+
 ### Musica
 
 Usar:
@@ -248,6 +261,8 @@ Recomendacion:
 - Mantener archivos comprimidos.
 - Evitar loops demasiado largos.
 - Probar que el loop no tenga silencio al inicio/final.
+- Para navegador, `.mp3` suele ser la opcion mas practica por peso y compatibilidad.
+- Exportar musica entre `128 kbps` y `192 kbps` suele ser suficiente para un juego arcade web.
 
 ### SFX
 
@@ -261,6 +276,33 @@ Recomendacion:
 - Sonidos cortos.
 - Volumen normalizado.
 - Evitar archivos pesados.
+- `.wav` sirve bien durante edicion porque conserva calidad y evita perdida por recomprimir.
+- Para produccion web, `.ogg` o `.mp3` pueden reducir peso, especialmente si hay muchos SFX.
+- Si se usa `.wav` en produccion, reservarlo para SFX muy cortos.
+
+Decision recomendada:
+
+- Musica: `.mp3`.
+- Ambiente: `.mp3` u `.ogg`.
+- SFX fuente/editables: `.wav`.
+- SFX finales para navegador: `.ogg` o `.mp3`; `.wav` solo si son muy pequenos.
+
+## Herramientas Online Para Grabar Audio
+
+Opciones utiles para grabar desde el navegador y exportar gratis:
+
+- HappyScribe Online Voice Recorder: permite grabar voz y descargar en `.mp3`.
+  - https://www.happyscribe.com/tools/online-voice-recorder
+- RecordVoice: permite grabar, editar y descargar en `.mp3` y `.wav`.
+  - https://recordvoice.net/
+- Voice Recorder IO: permite grabar, recortar y descargar en `.mp3`, `.wav` o `.webm`.
+  - https://voice-recorder.io/
+- Aspose Audio Voice Recorder: permite guardar en `.mp3`, `.wav` y `.ogg`.
+  - https://products.aspose.app/audio/voice-recorder
+- TwistedWave Online: editor online para grabar y editar audio desde el navegador.
+  - https://twistedwave.com/online-audio-editor/
+
+Nota: antes de usar audio de terceros, confirmar licencia. Para este juego conviene grabar sonidos propios o usar bancos con licencia clara para uso comercial/no comercial segun corresponda.
 
 ## Rendimiento
 
@@ -347,4 +389,3 @@ Luego agregar:
 - ambiente
 - sonidos de victoria/derrota
 - inicio de oleada
-

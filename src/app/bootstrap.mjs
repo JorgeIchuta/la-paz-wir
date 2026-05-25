@@ -20,11 +20,39 @@ export function bootstrapBrowserGame() {
   const attackCooldownBarEl = document.querySelector("#attackCooldownBar");
   const overlay = document.querySelector("#overlay");
   const startButton = document.querySelector("#startButton");
+  const muteButton = document.querySelector("#muteButton");
+  const musicVolumeEl = document.querySelector("#musicVolume");
+  const sfxVolumeEl = document.querySelector("#sfxVolume");
 
-  const required = { scoreEl, lifeBarEl, lifeValueEl, timeValueEl, attackCooldownBarEl, overlay, startButton };
+  const required = {
+    scoreEl,
+    lifeBarEl,
+    lifeValueEl,
+    timeValueEl,
+    attackCooldownBarEl,
+    overlay,
+    startButton,
+    muteButton,
+    musicVolumeEl,
+    sfxVolumeEl,
+  };
   Object.entries(required).forEach(([name, element]) => {
     if (!element) throw new Error(`Required game UI element ${name} was not found.`);
   });
 
-  return { canvas, ctx, gamePanel, scoreEl, lifeBarEl, lifeValueEl, timeValueEl, attackCooldownBarEl, overlay, startButton };
+  return {
+    canvas,
+    ctx,
+    gamePanel,
+    scoreEl,
+    lifeBarEl,
+    lifeValueEl,
+    timeValueEl,
+    attackCooldownBarEl,
+    overlay,
+    startButton,
+    muteButton,
+    musicVolumeEl,
+    sfxVolumeEl,
+  };
 }

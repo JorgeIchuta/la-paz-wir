@@ -9,12 +9,14 @@ export function createCombatSystem({
   weaponConfig,
   playerTuning,
   enemyConfig,
+  audio,
 }) {
   function maybeAttack() {
     if (!input.attack || player.attackCooldown > 0) return;
     const weapon = weaponConfig();
     player.attackCooldown = weapon.cooldown;
     player.attackTimer = weapon.activeTime;
+    audio?.playSfx("whip", { volume: 0.72, playbackRate: 0.98 + Math.random() * 0.05 });
 
     // The melee hitbox is intentionally offset forward from the actor center to match the whip arc.
     const hit = {
@@ -25,13 +27,16 @@ export function createCombatSystem({
     };
     state.hitArcs.push({ x: player.x, y: player.y - 18, dir: player.dir, life: weapon.activeTime, type: "whip" });
 
+    let hitEnemy = false;
     state.enemies.forEach((enemy) => {
       if (!rectsOverlap(hit, enemyBox(enemy))) return;
       enemy.hp -= weapon.damage;
       enemy.vx = player.dir * weapon.knockback;
       enemy.vy = -120;
+      hitEnemy = true;
       burst(enemy.x, enemy.y, "#f5c84f");
     });
+    if (hitEnemy) audio?.playSfx("hit", { volume: 0.66, playbackRate: 0.96 + Math.random() * 0.09 });
 
     state.objects.forEach((obj) => {
       if (obj.hp <= 0 || obj.type === "shop") return;
@@ -45,6 +50,7 @@ export function createCombatSystem({
       if (enemy.hp > 0) return true;
       state.score += enemyConfig(enemy.type)?.score ?? 5;
       burst(enemy.x, enemy.y, "#7bc878");
+      audio?.playSfx("enemyDefeat", { volume: 0.64 });
       return false;
     });
   }
@@ -60,6 +66,7 @@ export function createCombatSystem({
     state.energy -= damage;
     player.invincible = playerTuning.invincibleSeconds;
     player.vx = knockback;
+    audio?.playSfx("playerHit", { volume: 0.76 });
     burst(player.x, player.y, "#d94f35");
   }
 
