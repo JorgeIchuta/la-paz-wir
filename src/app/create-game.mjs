@@ -8,6 +8,7 @@ import {
 } from "../core/geometry.mjs";
 import { bindGameInput } from "../core/input.mjs";
 import { ObjectPool } from "../core/object-pool.mjs";
+import { loadTiledMap } from "../core/tiled-map-loader.mjs";
 import { assetManifest } from "../data/assets.mjs";
 import { enemyDefinitions } from "../data/enemies.mjs";
 import { levelDefinitions } from "../data/levels.mjs";
@@ -163,18 +164,26 @@ function resolveLevelBackground(background) {
   return background;
 }
 
-function hydrateLevelDefinition(level) {
-  return {
+async function hydrateLevelDefinition(level) {
+  const hydrated = {
     ...level,
     background: resolveLevelBackground(level.background),
-    objects: level.objects.map((obj) => ({ ...obj })),
+    objects: (level.objects || []).map((obj) => ({ ...obj })),
+  };
+  if (!level.map) return hydrated;
+
+  const tiledMap = await loadTiledMap(level.map);
+  return {
+    ...hydrated,
+    tiledMap,
+    width: tiledMap.width,
   };
 }
 
-function applyLevelDefinitions(levelDefinitions) {
+async function applyLevelDefinitions(levelDefinitions) {
   if (!Array.isArray(levelDefinitions) || levelDefinitions.length === 0) return;
   rawLevelDefinitions = levelDefinitions;
-  levels = levelDefinitions.map(hydrateLevelDefinition);
+  levels = await Promise.all(levelDefinitions.map(hydrateLevelDefinition));
   state.levelIndex = clamp(state.levelIndex, 0, levels.length - 1);
 }
 
@@ -189,7 +198,7 @@ function enemyConfig(type) {
 
 Object.assign(assets, createAssetsFromManifest(assetManifest));
 attachCharacterSheet(assets.characterSheet);
-applyLevelDefinitions(levelDefinitions);
+await applyLevelDefinitions(levelDefinitions);
 applyEnemyDefinitions(enemyDefinitions);
 
 particlePool = new ObjectPool(

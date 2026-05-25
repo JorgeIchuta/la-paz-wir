@@ -61,6 +61,7 @@ export function createRenderer({
     drawWorld();
     getEffectsRenderer().drawEffects();
     actors.drawPlayer();
+    getBackgroundRenderer().drawForegroundLayer();
     worldRenderer.drawForeground();
     getHudRenderer().drawCooldown();
     getHudRenderer().drawStatus();

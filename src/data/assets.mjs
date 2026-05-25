@@ -1,6 +1,6 @@
 export const assetManifest = {
   backgrounds: {
-    street: "assets/backgrounds/la-paz-playable-map-long.png",
+    street: "assets/backgrounds/zone-01-senkata-disturbios-commercial-gate-v1.png",
     teleferico: "assets/backgrounds/la-paz-teleferico-map-extended-aligned.png",
   },
   sprites: {

@@ -9,8 +9,12 @@ export function createObjectSystem({
   burst,
 }) {
   function buildLevelObjects(level) {
+    if (level.tiledMap) {
+      return buildTiledObjects(level);
+    }
+
     const objects = [];
-    const baseObjects = level.objects.map((obj) => ({ ...obj }));
+    const baseObjects = level.objects.map((obj) => alignObjectToGround(obj, level.ground));
     const repeat = level.objectRepeat || 3100;
 
     for (let offset = 0; offset < level.width - 900; offset += repeat) {
@@ -21,8 +25,63 @@ export function createObjectSystem({
       });
     }
 
-    objects.push({ type: "mask", x: level.width - 1700, y: level.ground - 56, w: 34, h: 34, hp: 1, picked: false });
+    objects.push(alignObjectToGround({ type: "mask", x: level.width - 1700, y: level.ground - 56, w: 34, h: 34, hp: 1, picked: false }, level.ground));
     return objects;
+  }
+
+  function buildTiledObjects(level) {
+    const tiledObjects = [
+      ...level.tiledMap.objects.interactables,
+      ...level.tiledMap.objects.pickups,
+    ];
+    return tiledObjects.map((obj) => prepareTiledObject(obj, level));
+  }
+
+  function prepareTiledObject(obj, level) {
+    const positioned = normalizeTiledObjectPosition(obj, level);
+    const prepared = {
+      ...positioned,
+      hp: obj.hp ?? defaultHpForType(obj.type),
+    };
+    if (prepared.type === "shop") prepared.saved = false;
+    if (prepared.type === "mask") prepared.picked = false;
+    return prepared;
+  }
+
+  function normalizeTiledObjectPosition(obj, level) {
+    const bottom = obj.y + obj.h / 2;
+    if (bottom <= level.ground + 80) return { ...obj };
+
+    const referenceGround = level.tiledReferenceGroundY || level.backgroundGroundY || level.tiledMap.height;
+    const scaleY = level.ground / referenceGround;
+    const scaledHeight = obj.h * scaleY;
+    const scaledBottom = bottom * scaleY;
+
+    return {
+      ...obj,
+      y: scaledBottom - scaledHeight / 2,
+      h: scaledHeight,
+    };
+  }
+
+  function defaultHpForType(type) {
+    if (type === "shop") return 100;
+    if (type === "barricade" || type === "rubble") return 2;
+    return 1;
+  }
+
+  function alignObjectToGround(obj, ground) {
+    const aligned = { ...obj };
+    if (aligned.type === "shop") {
+      aligned.y = ground - 46;
+      return aligned;
+    }
+    if (aligned.type === "mask") {
+      aligned.y = ground - 20;
+      return aligned;
+    }
+    aligned.y = ground - aligned.h / 2;
+    return aligned;
   }
 
   function updateObjects(dt = 1 / 60) {

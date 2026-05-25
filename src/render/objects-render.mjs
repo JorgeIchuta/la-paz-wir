@@ -14,9 +14,26 @@ export function createObjectsRenderer({ ctx, assets, px, strokePx, drawCharacter
       px(obj.x - obj.w / 2 + 3, obj.y - obj.h / 2 + 3, obj.w - 6, obj.h - 6, "#80512c");
       strokePx(obj.x - obj.w / 2 + 7, obj.y - obj.h / 2 + 7, obj.w - 14, obj.h - 14, "#3c2418");
     }
+    if (obj.type === "rubble") drawRubble(obj);
     if (obj.type === "shop") drawPacenaShop(obj);
     if (obj.type === "mask") drawGasMask(obj.x, obj.y);
     if (obj.type === "food-helper") drawFoodHelper(obj);
+  }
+
+  function drawRubble(obj) {
+    const left = obj.x - obj.w / 2;
+    const bottom = obj.y + obj.h / 2;
+    px(left - 6, bottom - 4, obj.w + 12, 5, "rgba(0, 0, 0, 0.34)");
+    px(left + 4, bottom - 14, 22, 12, "#383533");
+    px(left + 22, bottom - 21, 32, 19, "#615b53");
+    px(left + 52, bottom - 15, 26, 13, "#4d4944");
+    px(left + obj.w - 34, bottom - 18, 30, 16, "#746d62");
+    px(left + 11, bottom - 28, 18, 13, "#8a5d35");
+    px(left + 40, bottom - 31, 12, 10, "#b26b3d");
+    px(left + 65, bottom - 24, 18, 11, "#2e3f4a");
+    px(left + obj.w - 20, bottom - 29, 14, 13, "#9a884f");
+    strokePx(left + 22, bottom - 21, 32, 19, "#25211e");
+    strokePx(left + obj.w - 34, bottom - 18, 30, 16, "#292521");
   }
 
   function drawPacenaShop(obj) {

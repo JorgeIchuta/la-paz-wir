@@ -7,29 +7,62 @@ export function createBackgroundRenderer({
   px,
 }) {
   function drawBackground() {
+    drawSkyWash();
+    drawBackdropImage();
+    drawBackAtmosphere();
+  }
+
+  function drawBackdropImage() {
     const bg = currentLevel().background;
     if (bg.complete && bg.naturalWidth > 0) {
-      const sourceHeight = bg.naturalHeight;
+      const level = currentLevel();
+      const sourceGroundY = level.backgroundGroundY || bg.naturalHeight * 0.86;
+      const sourceHeight = Math.min(bg.naturalHeight, canvas.height * (sourceGroundY / world.ground));
       const sourceWidth = Math.min(bg.naturalWidth, canvas.width * (sourceHeight / canvas.height));
       const maxScroll = Math.max(1, world.width - canvas.width);
       const sourceX = (bg.naturalWidth - sourceWidth) * (world.cameraX / maxScroll);
-      ctx.drawImage(bg, sourceX, 0, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
+      const sourceY = Math.max(0, sourceGroundY - world.ground * (sourceHeight / canvas.height));
+      ctx.drawImage(bg, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
       return;
     }
 
+    drawProceduralBackdrop();
+  }
+
+  function drawSkyWash() {
     const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
     sky.addColorStop(0, "#1e73d8");
     sky.addColorStop(0.45, "#4d9be4");
     sky.addColorStop(1, "#7eb6d8");
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
+  function drawProceduralBackdrop() {
     drawClouds();
     drawIllimani();
     drawHillside(0.16, 248, "#9f5a37", "#d4864d");
     drawHillside(0.3, 330, "#874b31", "#c37142");
     drawTeleferico();
     drawPowerLines();
+  }
+
+  function drawBackAtmosphere() {
+    const level = currentLevel();
+    if (!level.atmosphere) return;
+
+    drawSmokeColumn(128, 86, 0.15, 0.72);
+    drawSmokeColumn(canvas.width - 72, 66, 0.1, 0.78);
+    drawDistantCables(0.18);
+  }
+
+  function drawForegroundLayer() {
+    const level = currentLevel();
+    if (!level.foreground) return;
+
+    drawHeatGlow(92, world.ground + 6, 0.8);
+    drawHeatGlow(canvas.width - 58, world.ground + 2, 0.65);
+    drawForegroundDust();
   }
 
   function drawIllimani() {
@@ -147,8 +180,62 @@ export function createBackgroundRenderer({
     }
   }
 
+  function drawDistantCables(rate) {
+    const offset = -(world.cameraX * rate) % 560;
+    ctx.save();
+    ctx.strokeStyle = "rgba(10, 13, 14, 0.64)";
+    ctx.lineWidth = 2;
+    for (let row = 0; row < 3; row += 1) {
+      ctx.beginPath();
+      ctx.moveTo(offset - 80, 112 + row * 18);
+      ctx.lineTo(canvas.width + 80, 70 + row * 19);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawSmokeColumn(x, y, driftRate, alpha) {
+    const drift = Math.sin(state.elapsed * 0.7 + x) * 8 - world.cameraX * driftRate;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    for (let i = 0; i < 8; i += 1) {
+      const radius = 42 + i * 10;
+      const px = ((x + drift + i * 12) % (canvas.width + 180)) - 90;
+      const py = y + i * 38 - Math.sin(state.elapsed * 0.4 + i) * 7;
+      const gradient = ctx.createRadialGradient(px, py, 4, px, py, radius);
+      gradient.addColorStop(0, "rgba(20, 22, 23, 0.34)");
+      gradient.addColorStop(1, "rgba(20, 22, 23, 0)");
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawHeatGlow(x, y, scale) {
+    const glow = ctx.createRadialGradient(x, y - 20, 2, x, y - 20, 58 * scale);
+    glow.addColorStop(0, "rgba(242, 111, 46, 0.26)");
+    glow.addColorStop(0.45, "rgba(210, 64, 35, 0.12)");
+    glow.addColorStop(1, "rgba(210, 64, 35, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(x - 70 * scale, y - 82 * scale, 140 * scale, 110 * scale);
+  }
+
+  function drawForegroundDust() {
+    ctx.save();
+    ctx.fillStyle = "rgba(20, 18, 15, 0.2)";
+    for (let i = 0; i < 18; i += 1) {
+      const x = ((i * 97 - world.cameraX * 0.55 + state.elapsed * 12) % (canvas.width + 80)) - 40;
+      const y = world.ground + 24 + (i % 4) * 13;
+      ctx.fillRect(Math.round(x), Math.round(y), 22 + (i % 3) * 9, 2);
+    }
+    ctx.restore();
+  }
+
   return {
     drawBackground,
+    drawForegroundLayer,
   };
 }
 
