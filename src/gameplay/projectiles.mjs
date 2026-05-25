@@ -8,6 +8,7 @@ export function createProjectileSystem({
   playerBox,
   hitPlayer,
   burst,
+  audio,
 }) {
   function throwProjectile(enemy, type) {
     const dir = Math.sign(player.x - enemy.x) || 1;
@@ -87,6 +88,7 @@ export function createProjectileSystem({
 
   function explode(projectile) {
     const radius = 72;
+    audio?.playSfx("explosionDynamite", { volume: 0.88 });
     burst(projectile.x, projectile.y, "#f18b32");
     burst(projectile.x, projectile.y - 8, "#f1d25b");
     if (Math.hypot(player.x - projectile.x, player.y - projectile.y) < radius) {

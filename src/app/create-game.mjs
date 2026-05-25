@@ -34,7 +34,7 @@ import {
   resetRuntimeState,
 } from "./game-state.mjs";
 
-export async function createGame(browser) {
+export async function createGame(browser, { audio = null } = {}) {
 const {
   canvas,
   ctx,
@@ -266,6 +266,7 @@ projectileSystem = createProjectileSystem({
   playerBox,
   hitPlayer,
   burst,
+  audio,
 });
 
 combatSystem = createCombatSystem({
@@ -279,6 +280,7 @@ combatSystem = createCombatSystem({
   weaponConfig: () => weaponDefinitions.whip,
   playerTuning,
   enemyConfig,
+  audio,
 });
 
 waveSystem = createWaveSystem({
@@ -291,6 +293,7 @@ waveSystem = createWaveSystem({
   showMessage,
   enemyConfig,
   enemySpeed,
+  audio,
 });
 
 objectSystem = createObjectSystem({
@@ -303,6 +306,7 @@ objectSystem = createObjectSystem({
   finishFoodBreak,
   burst,
   playerTuning,
+  audio,
 });
 
 enemiesRuntime = createEnemiesRuntime({
@@ -412,11 +416,11 @@ function update(dt) {
   updateHud();
 
   if (state.energy <= 0) {
-    endGame("Te quedaste sin vida");
+    endGame("Te quedaste sin vida", "defeat");
   }
 
   if (player.x > world.width - 170 && state.finalStarted && !state.enemies.some((enemy) => enemy.type === "miner")) {
-    endGame(currentLevel().finishText);
+    endGame(currentLevel().finishText, "victory");
   }
 }
 
@@ -554,8 +558,16 @@ function updateHud() {
   lifeBarEl.parentElement.setAttribute("aria-valuenow", String(currentLife));
 }
 
-function endGame(message) {
+function endGame(message, outcome = "defeat") {
+  if (!state.running) return;
   state.running = false;
+  audio?.stopAmbience();
+  audio?.stopMusic();
+  if (outcome === "victory") {
+    audio?.playMusic("victory", { loop: false, restart: true });
+  } else {
+    audio?.playSfx("defeat", { volume: 0.92 });
+  }
   if (gameUi) {
     gameUi.showEndScreen({
       title: message,

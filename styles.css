@@ -64,10 +64,52 @@ button {
   left: 0;
   right: 0;
   display: grid;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   background: rgba(17, 18, 16, 0.84);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(8px);
+}
+
+.hud-audio {
+  display: grid;
+  grid-template-columns: 82px 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 10px 7px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 15, 13, 0.36);
+}
+
+.audio-mute {
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(247, 200, 79, 0.22);
+  color: #fff4df;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.audio-mute[aria-pressed="true"] {
+  background: rgba(217, 79, 53, 0.48);
+}
+
+.audio-slider {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.audio-slider .hud-label {
+  margin-bottom: 0;
+  text-align: right;
+}
+
+.audio-slider input {
+  width: 100%;
+  min-width: 0;
+  accent-color: #f7c84f;
 }
 
 .hud-main {
