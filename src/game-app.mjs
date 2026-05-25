@@ -15,16 +15,39 @@ const loop = createGameLoop({
 
 bindAudioControls();
 
-browser.startButton.addEventListener("click", () => {
-  browser.gamePanel.classList.add("is-playing");
-  audio.unlock().then(() => {
-    audio.stopMusic();
-    audio.stopAmbience();
-    audio.playMusic("level1");
-    audio.playAmbience("city");
+const initialOverlayTitle = browser.overlay.querySelector("h1").textContent;
+const initialOverlayText = browser.overlay.querySelector("p").textContent;
+let startPending = false;
+
+browser.startButton.addEventListener("click", async () => {
+  if (startPending) return;
+  startPending = true;
+  setStartLoading();
+
+  const audioUnlock = audio.unlock().catch((error) => {
+    console.error(error);
+    return false;
   });
-  game.reset();
-  loop.start();
+  try {
+    await game.waitUntilReady();
+    audioUnlock.then((unlocked) => {
+      if (!unlocked) return;
+      audio.stopMusic();
+      audio.stopAmbience();
+      audio.playMusic("level1");
+      audio.playAmbience("city");
+    });
+
+    browser.gamePanel.classList.add("is-playing");
+    resetStartButton();
+    game.reset();
+    loop.start();
+  } catch (error) {
+    console.error(error);
+    setStartError();
+  } finally {
+    startPending = false;
+  }
 });
 
 function bindAudioControls() {
@@ -53,6 +76,33 @@ function bindAudioControls() {
 function updateMuteButton(muted) {
   browser.muteButton.textContent = muted ? "Audio off" : "Audio";
   browser.muteButton.setAttribute("aria-pressed", String(muted));
+}
+
+function setStartLoading() {
+  browser.gamePanel.classList.add("is-loading");
+  browser.overlay.querySelector("h1").textContent = initialOverlayTitle;
+  browser.overlay.querySelector("p").textContent = "Cargando imagenes del juego...";
+  browser.startButton.textContent = "Cargando...";
+  browser.startButton.disabled = true;
+  browser.startButton.setAttribute("aria-busy", "true");
+}
+
+function setStartError() {
+  browser.gamePanel.classList.remove("is-loading");
+  browser.overlay.querySelector("h1").textContent = "No se pudo cargar";
+  browser.overlay.querySelector("p").textContent = "Revisa la conexion y vuelve a intentar.";
+  browser.startButton.textContent = "Reintentar";
+  browser.startButton.disabled = false;
+  browser.startButton.removeAttribute("aria-busy");
+}
+
+function resetStartButton() {
+  browser.gamePanel.classList.remove("is-loading");
+  browser.overlay.querySelector("h1").textContent = initialOverlayTitle;
+  browser.overlay.querySelector("p").textContent = initialOverlayText;
+  browser.startButton.textContent = "Jugar";
+  browser.startButton.disabled = false;
+  browser.startButton.removeAttribute("aria-busy");
 }
 
 function lockRangeKeyboardAdjustment(rangeEl) {

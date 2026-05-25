@@ -32,6 +32,10 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+button:disabled {
+  cursor: wait;
+}
+
 .shell {
   width: 100%;
   min-height: 100svh;
@@ -276,6 +280,11 @@ canvas {
   color: #fff8ec;
   font-weight: 700;
   box-shadow: 0 8px 0 #7e291c;
+}
+
+.overlay button:disabled {
+  opacity: 0.82;
+  box-shadow: 0 4px 0 #7e291c;
 }
 
 .controls {

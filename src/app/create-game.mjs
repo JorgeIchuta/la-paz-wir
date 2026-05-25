@@ -14,7 +14,7 @@ import { levelDefinitions } from "../data/levels.mjs";
 import { playerTuning } from "../data/player-tuning.mjs";
 import { renderTuning } from "../data/render-tuning.mjs";
 import { weaponDefinitions } from "../data/weapons.mjs";
-import { createAssetsFromManifest } from "../core/asset-loader.mjs";
+import { createAssetsFromManifest, waitForImages } from "../core/asset-loader.mjs";
 import { createCombatSystem } from "../gameplay/combat.mjs";
 import { createEffectsSystem } from "../gameplay/effects.mjs";
 import { createEnemiesRuntime } from "../gameplay/enemies-runtime.mjs";
@@ -70,33 +70,10 @@ const encounterLabels = {
 
 const world = createWorldState();
 
-let assets = {
-  level1Background: loadImage("assets/level-1/background/background-la-paz-teleferico-map-extended-aligned.png"),
-  characterSheet: loadImage("assets/sprites/characters-source-green.png"),
-  foodHelper: loadImage("assets/sprites/senora-pollera-helper.png"),
-  policeAlly: loadImage("assets/sprites/police-ally.png"),
-  walkSheets: {
-    hero: loadImage("assets/sprites/hero-walk.png"),
-    blocker: loadImage("assets/sprites/blocker-walk.png"),
-    looter: loadImage("assets/sprites/looter-walk.png"),
-    mallku: loadImage("assets/sprites/mallku-walk.png"),
-    miner: loadImage("assets/sprites/miner-walk.png"),
-    foodHelper: loadImage("assets/sprites/senora-pollera-helper-detailed-walk.png"),
-  },
-  attackSheets: {
-    hero: loadImage("assets/sprites/hero-chicote-attack.png"),
-  },
-  characterCanvas: null,
-};
+const assets = createAssetsFromManifest(assetManifest);
 
 const state = createInitialState();
 const player = createPlayerState();
-
-function loadImage(src) {
-  const image = new Image();
-  image.src = src;
-  return image;
-}
 
 function attachCharacterSheet(image) {
   if (!image) return;
@@ -211,10 +188,12 @@ function enemyConfig(type) {
   return enemyConfigs && enemyConfigs[type] ? enemyConfigs[type] : null;
 }
 
-Object.assign(assets, createAssetsFromManifest(assetManifest));
-attachCharacterSheet(assets.characterSheet);
 applyLevelDefinitions(levelDefinitions);
 applyEnemyDefinitions(enemyDefinitions);
+const visualAssetsReady = waitForImages(assets).then(() => {
+  attachCharacterSheet(assets.characterSheet);
+  return assets;
+});
 
 particlePool = new ObjectPool(
   () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 0, color: "#ffffff" }),
@@ -648,12 +627,11 @@ function clamp(value, min, max) {
   return geometryClamp(value, min, max);
 }
 
-draw();
-
 return {
   reset: resetGame,
   update,
   draw,
   isRunning: () => state.running,
+  waitUntilReady: () => visualAssetsReady,
 };
 }
